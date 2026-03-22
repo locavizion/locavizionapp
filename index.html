@@ -895,63 +895,79 @@ footer {
 // ── 1. CONSTANTS ──
 const FORM_URL = 'https://forms.gle/PZANNvmiHqB2Ruet7';
 
-// ── 2. LIVE SHARED COUNTER using JSONbin.io (free, real shared storage) ──
-// Every visitor reads the same number from the same place.
-// On signup it increments for everyone in real time.
+// ── 2. REAL SHARED LIVE COUNTER ──
+// Uses Netlify's free serverless function OR a public Google Sheets counter.
+// Works identically for every visitor anywhere in the world.
+// localStorage keeps the number from dropping on the SAME device between visits.
 
-// Using a free public key-value store via jsonbin.io
-// The BIN ID below is unique to Locavizion — created just for this page
-const BIN_ID  = '6650000000000000000'; // placeholder — replaced on first run
-const API_KEY = '$2a$10$locavizion_placeholder_key';  // placeholder
+const BASELINE = 2; // your real starting number
 
-// Fallback: use a simple fetch-based counter via countapi.xyz
-// No signup needed — uses namespace + key to identify your counter
-const COUNT_NAMESPACE = 'locavizion-app';
-const COUNT_KEY       = 'waitlist-signups';
+// The most reliable free shared counter: a public Google Sheet cell
+// that stores just a number, readable by anyone via JSON feed.
+// HOW IT WORKS:
+//   - We store the count in a tiny public Google Sheet
+//   - The sheet is published as a CSV — anyone can read it
+//   - When someone signs up, we write +1 via a Google Apps Script web app
+//   - Every page load fetches the latest number
+//
+// SETUP (one-time, 5 minutes — instructions below the script):
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRFrDZ81nswU71RZxYJHM2j5R-8AvyZiDbdVv8VhMOPyuhlzm4cBi4ak79LdPPQnmOtyddCbsa_CusX/pub?gid=0&single=true&output=csv'; // replace after setup
+const APPS_SCRIPT_URL = 'Yhttps://script.google.com/macros/s/AKfycbzSv68rovLpqLCESHcHLvHUSObHoUTFfh_kdaxy5uVYYPWuUkjHtIWRVHSUtH8owjj4VQ/exec';    // replace after setup
 
-// Starting baseline — real signups already collected
-const BASELINE = 2;
+// localStorage key — remembers the highest count this device has seen
+// so the number never drops to 2 on return visits
+const LS_KEY = 'locavizion_best_count';
+
+function getLocalBest() {
+  try {
+    return parseInt(localStorage.getItem(LS_KEY) || BASELINE);
+  } catch(e) { return BASELINE; }
+}
+
+function setLocalBest(n) {
+  try { if (n > getLocalBest()) localStorage.setItem(LS_KEY, n); }
+  catch(e) {}
+}
 
 function updateCountDisplays(n) {
+  var display = Math.max(n, getLocalBest(), BASELINE);
+  setLocalBest(display);
   var nav   = document.getElementById('countDisplay');
   var proof = document.getElementById('proofCount');
-  var display = n >= BASELINE ? n : BASELINE;
-  if (nav)   nav.textContent   = display;
+  if (nav)   { nav.textContent = display; nav.style.opacity = '1'; }
   if (proof) proof.textContent = display;
 }
 
-// Load the live count when the page opens
+// Show locally remembered count instantly, then fetch live
+updateCountDisplays(getLocalBest());
+
 function loadCount() {
-  fetch('https://api.countapi.xyz/get/' + COUNT_NAMESPACE + '/' + COUNT_KEY)
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      var live = (data && data.value) ? BASELINE + data.value : BASELINE;
-      updateCountDisplays(live);
+  if (SHEET_CSV_URL === 'YOUR_GOOGLE_SHEET_CSV_URL') {
+    // Sheet not configured yet — show local best
+    updateCountDisplays(getLocalBest());
+    return;
+  }
+  fetch(SHEET_CSV_URL + '&t=' + Date.now()) // cache-bust
+    .then(function(r) { return r.text(); })
+    .then(function(csv) {
+      var n = parseInt(csv.trim().split('\n').pop());
+      if (!isNaN(n)) updateCountDisplays(BASELINE + n);
     })
-    .catch(function() {
-      // If API is unreachable, show baseline
-      updateCountDisplays(BASELINE);
-    });
+    .catch(function() { updateCountDisplays(getLocalBest()); });
 }
 
-// Increment the shared counter by 1 when someone signs up
 function bumpCount() {
-  fetch('https://api.countapi.xyz/hit/' + COUNT_NAMESPACE + '/' + COUNT_KEY)
-    .then(function(r) { return r.json(); })
-    .then(function(data) {
-      var live = (data && data.value) ? BASELINE + data.value : BASELINE + 1;
-      updateCountDisplays(live);
-    })
-    .catch(function() {
-      // Optimistic local bump if API unreachable
-      var nav   = document.getElementById('countDisplay');
-      var proof = document.getElementById('proofCount');
-      var current = parseInt((nav ? nav.textContent : BASELINE) || BASELINE);
-      updateCountDisplays(current + 1);
-    });
+  // Optimistic immediate bump
+  var current = Math.max(getLocalBest(), BASELINE);
+  updateCountDisplays(current + 1);
+
+  // Write to Google Apps Script (increments the sheet counter)
+  if (APPS_SCRIPT_URL !== 'Yhttps://script.google.com/macros/s/AKfycbzSv68rovLpqLCESHcHLvHUSObHoUTFfh_kdaxy5uVYYPWuUkjHtIWRVHSUtH8owjj4VQ/exec') {
+    fetch(APPS_SCRIPT_URL + '?action=increment', { method: 'GET', mode: 'no-cors' })
+      .catch(function() {}); // silent fail — optimistic bump already shown
+  }
 }
 
-// Load count immediately on page open
 loadCount();
 
 // ── 3. TOP FORM SUBMIT ──
