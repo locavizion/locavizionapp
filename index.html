@@ -1172,7 +1172,6 @@ problemItems.forEach(function(el) { revealObserver.observe(el); });
 
 /* ── CHAT WINDOW ── */
 #lv-chat-window {
-  display: none;
   position: fixed;
   bottom: 5.5rem;
   right: 1.75rem;
@@ -1183,14 +1182,14 @@ problemItems.forEach(function(el) { revealObserver.observe(el); });
   background: #0f0e0c;
   border: 1px solid rgba(196,154,42,0.3);
   box-shadow: 0 12px 48px rgba(0,0,0,0.5);
-  display: none;
   flex-direction: column;
   z-index: 9998;
-  animation: lvWindowIn 0.25s ease;
   overflow: hidden;
+  display: none;
 }
 #lv-chat-window.open {
   display: flex;
+  animation: lvWindowIn 0.25s ease;
 }
 @keyframes lvWindowIn {
   from { opacity:0; transform:translateY(12px) scale(0.97); }
