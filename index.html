@@ -1097,561 +1097,259 @@ problemItems.forEach(function(el) { revealObserver.observe(el); });
 
 </script>
 
-<!-- ═══════════════════════════════════════
-     LOCAVIZION AI CITY GUIDE CHAT WIDGET
-     Powered by Claude (Anthropic)
-     
-     ⚠️  IMPORTANT: Replace YOUR_API_KEY_HERE
-     with your new Anthropic API key from
-     console.anthropic.com before deploying.
-════════════════════════════════════════ -->
+<!-- LOCAVIZION AI CHAT WIDGET -->
 
 <style>
-/* ── CHAT BUBBLE ── */
-#lv-chat-bubble {
-  position: fixed;
-  bottom: 1.75rem;
-  right: 1.75rem;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.75rem;
-  font-family: 'Outfit', sans-serif;
-}
-
-/* Prompt tooltip above bubble */
-#lv-bubble-tip {
-  background: var(--ink);
-  border: 1px solid rgba(196,154,42,0.4);
-  color: rgba(250,247,242,0.85);
-  font-size: 0.72rem;
-  padding: 0.55rem 0.9rem;
-  white-space: nowrap;
-  animation: lvTipIn 0.4s ease 1.5s both;
-  pointer-events: none;
-}
-@keyframes lvTipIn {
-  from { opacity:0; transform:translateY(6px); }
-  to   { opacity:1; transform:none; }
-}
-
-/* The round button */
-#lv-bubble-btn {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--gold);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 20px rgba(196,154,42,0.35);
-  transition: transform 0.2s, background 0.2s;
-  font-size: 1.4rem;
-  flex-shrink: 0;
-}
-#lv-bubble-btn:hover { transform: scale(1.08); background: var(--gold2); }
-
-/* Pulse ring */
-#lv-bubble-btn::after {
-  content: '';
-  position: absolute;
-  width: 56px; height: 56px;
-  border-radius: 50%;
-  border: 2px solid var(--gold);
-  animation: lvPulse 2.5s ease infinite;
-  pointer-events: none;
-}
-@keyframes lvPulse {
-  0%   { transform:scale(1);   opacity:0.6; }
-  70%  { transform:scale(1.5); opacity:0;   }
-  100% { transform:scale(1.5); opacity:0;   }
-}
-
-/* ── CHAT WINDOW ── */
-#lv-chat-window {
-  position: fixed;
-  bottom: 5.5rem;
-  right: 1.75rem;
-  width: 360px;
-  max-width: calc(100vw - 2rem);
-  height: 500px;
-  max-height: calc(100vh - 8rem);
-  background: #0f0e0c;
-  border: 1px solid rgba(196,154,42,0.3);
-  box-shadow: 0 12px 48px rgba(0,0,0,0.5);
-  flex-direction: column;
-  z-index: 9998;
-  overflow: hidden;
-  display: none;
-}
-#lv-chat-window.open {
-  display: flex;
-  animation: lvWindowIn 0.25s ease;
-}
-@keyframes lvWindowIn {
-  from { opacity:0; transform:translateY(12px) scale(0.97); }
-  to   { opacity:1; transform:none; }
-}
-
-/* Header */
-#lv-chat-header {
-  background: var(--ink);
-  border-bottom: 1px solid rgba(196,154,42,0.2);
-  padding: 1rem 1.25rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-shrink: 0;
-}
-.lv-header-left { display:flex; align-items:center; gap:0.65rem; }
-.lv-header-icon {
-  width: 32px; height: 32px;
-  background: var(--gold);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 0.9rem; flex-shrink: 0;
-}
-.lv-header-name {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--paper);
-  display: block;
-  line-height: 1.2;
-}
-.lv-header-status {
-  font-size: 0.6rem;
-  color: rgba(255,255,255,0.35);
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-.lv-status-dot {
-  width: 5px; height: 5px;
-  border-radius: 50%;
-  background: #4ade80;
-  animation: lvStatusPulse 2s ease infinite;
-}
-@keyframes lvStatusPulse {
-  0%,100%{opacity:1} 50%{opacity:0.4}
-}
-#lv-close-btn {
-  background: none; border: none; cursor: pointer;
-  color: rgba(255,255,255,0.3); font-size: 1.1rem;
-  line-height: 1; padding: 0.25rem;
-  transition: color 0.2s;
-}
-#lv-close-btn:hover { color: var(--gold); }
-
-/* Messages area */
-#lv-messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-  scroll-behavior: smooth;
-}
-#lv-messages::-webkit-scrollbar { width: 3px; }
-#lv-messages::-webkit-scrollbar-track { background: transparent; }
-#lv-messages::-webkit-scrollbar-thumb { background: rgba(196,154,42,0.3); }
-
-/* Message bubbles */
-.lv-msg {
-  max-width: 88%;
-  font-size: 0.78rem;
-  line-height: 1.75;
-  animation: lvMsgIn 0.2s ease;
-}
-@keyframes lvMsgIn {
-  from { opacity:0; transform:translateY(4px); }
-  to   { opacity:1; transform:none; }
-}
-.lv-msg.ai {
-  align-self: flex-start;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-  color: rgba(250,247,242,0.85);
-  padding: 0.75rem 1rem;
-  border-radius: 0 12px 12px 12px;
-}
-.lv-msg.user {
-  align-self: flex-end;
-  background: var(--gold);
-  color: var(--ink);
-  padding: 0.75rem 1rem;
-  border-radius: 12px 12px 0 12px;
-  font-weight: 500;
-}
-.lv-msg.ai a {
-  color: var(--gold2);
-  text-decoration: underline;
-}
-
-/* Typing indicator */
-#lv-typing {
-  align-self: flex-start;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.08);
-  padding: 0.75rem 1rem;
-  border-radius: 0 12px 12px 12px;
-  display: none;
-}
-#lv-typing.show { display: flex; gap: 4px; align-items: center; }
-.lv-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: rgba(196,154,42,0.6);
-  animation: lvDot 1.2s ease infinite;
-}
-.lv-dot:nth-child(2) { animation-delay: 0.2s; }
-.lv-dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes lvDot {
-  0%,60%,100% { transform:translateY(0);  opacity:0.4; }
-  30%          { transform:translateY(-5px); opacity:1;   }
-}
-
-/* Quick suggestion chips */
-#lv-chips {
-  padding: 0 1.25rem 0.75rem;
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
-  flex-shrink: 0;
-}
-.lv-chip {
-  background: rgba(196,154,42,0.1);
-  border: 1px solid rgba(196,154,42,0.25);
-  color: var(--gold2);
-  font-size: 0.62rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  padding: 0.3rem 0.65rem;
-  cursor: pointer;
-  transition: all 0.18s;
-  font-family: 'Outfit', sans-serif;
-  white-space: nowrap;
-}
-.lv-chip:hover { background: rgba(196,154,42,0.2); border-color: var(--gold); color: white; }
-
-/* Input row */
-#lv-input-row {
-  display: flex;
-  gap: 0;
-  border-top: 1px solid rgba(255,255,255,0.08);
-  flex-shrink: 0;
-}
-#lv-input {
-  flex: 1;
-  background: rgba(255,255,255,0.04);
-  border: none;
-  outline: none;
-  color: var(--paper);
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.8rem;
-  padding: 0.9rem 1rem;
-  resize: none;
-}
-#lv-input::placeholder { color: rgba(255,255,255,0.25); }
-#lv-send-btn {
-  background: var(--gold);
-  border: none;
-  cursor: pointer;
-  padding: 0 1.1rem;
-  color: var(--ink);
-  font-size: 1rem;
-  transition: background 0.18s;
-  flex-shrink: 0;
-}
-#lv-send-btn:hover { background: var(--gold2); }
-#lv-send-btn:disabled { background: rgba(196,154,42,0.3); cursor: not-allowed; }
-
-/* City pills in header */
-.lv-cities-row {
-  padding: 0.5rem 1.25rem;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  display: flex;
-  gap: 0.4rem;
-  flex-shrink: 0;
-  background: rgba(255,255,255,0.02);
-}
-.lv-city-pill {
-  font-size: 0.55rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.3);
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
-  padding: 0.2rem 0.55rem;
-}
-
-/* Footer note */
-#lv-footer-note {
-  padding: 0.5rem 1.25rem;
-  font-size: 0.58rem;
-  color: rgba(255,255,255,0.18);
-  text-align: center;
-  border-top: 1px solid rgba(255,255,255,0.05);
-  flex-shrink: 0;
-}
+#lv-wrap{position:fixed;bottom:1.75rem;right:1.75rem;z-index:9999;font-family:'Outfit',sans-serif}
+#lv-tip{background:#0c0b09;border:1px solid rgba(196,154,42,0.4);color:rgba(250,247,242,0.85);font-size:0.72rem;padding:0.5rem 0.9rem;white-space:nowrap;text-align:center;margin-bottom:0.5rem;opacity:0;transition:opacity 0.4s}
+#lv-tip.show{opacity:1}
+#lv-btn{width:56px;height:56px;border-radius:50%;background:#c49a2a;border:none;cursor:pointer;font-size:1.4rem;box-shadow:0 4px 20px rgba(196,154,42,0.4);display:flex;align-items:center;justify-content:center;transition:transform 0.2s,background 0.2s;margin-left:auto}
+#lv-btn:hover{transform:scale(1.08);background:#e8b84b}
+#lv-win{display:none;position:fixed;bottom:5.5rem;right:1.75rem;width:360px;max-width:calc(100vw - 2rem);height:500px;max-height:calc(100vh - 8rem);background:#0f0e0c;border:1px solid rgba(196,154,42,0.3);box-shadow:0 12px 48px rgba(0,0,0,0.5);flex-direction:column;z-index:9998;overflow:hidden}
+#lv-win.on{display:flex}
+#lv-head{background:#0c0b09;border-bottom:1px solid rgba(196,154,42,0.2);padding:0.9rem 1.1rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.lv-hico{width:30px;height:30px;background:#c49a2a;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;margin-right:0.6rem}
+.lv-hname{font-size:0.8rem;font-weight:600;color:#faf7f2}
+.lv-hsub{font-size:0.58rem;color:rgba(255,255,255,0.3)}
+#lv-x{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.35);font-size:1.1rem;line-height:1;padding:0.2rem}
+#lv-pills{padding:0.45rem 1rem;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;gap:0.35rem;flex-wrap:wrap;flex-shrink:0;background:rgba(255,255,255,0.02)}
+.lv-pill{font-size:0.52rem;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.28);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);padding:0.18rem 0.5rem}
+#lv-msgs{flex:1;overflow-y:auto;padding:1rem;display:flex;flex-direction:column;gap:0.75rem;scroll-behavior:smooth}
+#lv-msgs::-webkit-scrollbar{width:3px}
+#lv-msgs::-webkit-scrollbar-thumb{background:rgba(196,154,42,0.3)}
+.lv-m{max-width:90%;font-size:0.77rem;line-height:1.75;padding:0.7rem 0.9rem;animation:lvIn 0.2s ease}
+.lv-m.ai{align-self:flex-start;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:rgba(250,247,242,0.82);border-radius:0 10px 10px 10px}
+.lv-m.usr{align-self:flex-end;background:#c49a2a;color:#0c0b09;font-weight:500;border-radius:10px 10px 0 10px}
+@keyframes lvIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+#lv-dots{align-self:flex-start;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);padding:0.7rem 0.9rem;border-radius:0 10px 10px 10px;display:none;gap:4px;align-items:center}
+#lv-dots.on{display:flex}
+.lv-d{width:6px;height:6px;border-radius:50%;background:rgba(196,154,42,0.6);animation:lvDot 1.2s ease infinite}
+.lv-d:nth-child(2){animation-delay:0.2s}.lv-d:nth-child(3){animation-delay:0.4s}
+@keyframes lvDot{0%,60%,100%{transform:translateY(0);opacity:0.4}30%{transform:translateY(-5px);opacity:1}}
+#lv-chips{padding:0 1rem 0.6rem;display:flex;gap:0.35rem;flex-wrap:wrap;flex-shrink:0}
+.lv-chip{background:rgba(196,154,42,0.1);border:1px solid rgba(196,154,42,0.25);color:#e8b84b;font-size:0.6rem;font-weight:500;padding:0.28rem 0.6rem;cursor:pointer;transition:all 0.15s;font-family:'Outfit',sans-serif}
+.lv-chip:hover{background:rgba(196,154,42,0.22);color:white}
+#lv-row{display:flex;border-top:1px solid rgba(255,255,255,0.08);flex-shrink:0}
+#lv-inp{flex:1;background:rgba(255,255,255,0.04);border:none;outline:none;color:#faf7f2;font-family:'Outfit',sans-serif;font-size:0.78rem;padding:0.85rem 0.9rem}
+#lv-inp::placeholder{color:rgba(255,255,255,0.25)}
+#lv-go{background:#c49a2a;border:none;cursor:pointer;padding:0 1rem;color:#0c0b09;font-size:1rem;transition:background 0.18s;flex-shrink:0}
+#lv-go:hover{background:#e8b84b}
+#lv-go:disabled{background:rgba(196,154,42,0.3);cursor:not-allowed}
+#lv-foot{padding:0.45rem 1rem;font-size:0.56rem;color:rgba(255,255,255,0.18);text-align:center;border-top:1px solid rgba(255,255,255,0.05);flex-shrink:0}
 </style>
 
-<!-- Chat bubble trigger -->
-<div id="lv-chat-bubble">
-  <div id="lv-bubble-tip">🗺 Ask me about your city</div>
-  <button id="lv-bubble-btn" onclick="lvToggleChat()" aria-label="Open city guide chat">🗺</button>
+<!-- Bubble -->
+<div id="lv-wrap">
+  <div id="lv-tip">🗺 Ask me about your city</div>
+  <button id="lv-btn" aria-label="Open city guide">🗺</button>
 </div>
 
-<!-- Chat window -->
-<div id="lv-chat-window">
-
-  <!-- Header -->
-  <div id="lv-chat-header">
-    <div class="lv-header-left">
-      <div class="lv-header-icon">✦</div>
+<!-- Window -->
+<div id="lv-win">
+  <div id="lv-head">
+    <div style="display:flex;align-items:center">
+      <div class="lv-hico">✦</div>
       <div>
-        <span class="lv-header-name">Locavizion City Guide</span>
-        <span class="lv-header-status">
-          <span class="lv-status-dot"></span>
-          Powered by AI · Miami · Tampa Bay · NYC
-        </span>
+        <div class="lv-hname">Locavizion City Guide</div>
+        <div class="lv-hsub">Miami · Tampa Bay · New York · ⚽ World Cup 2026</div>
       </div>
     </div>
-    <button id="lv-close-btn" onclick="lvToggleChat()">✕</button>
+    <button id="lv-x">✕</button>
   </div>
-
-  <!-- City pills -->
-  <div class="lv-cities-row">
-    <span class="lv-city-pill">🌴 Miami</span>
-    <span class="lv-city-pill">☀️ Tampa Bay</span>
-    <span class="lv-city-pill">🗽 New York</span>
-    <span class="lv-city-pill">⚽ World Cup 2026</span>
+  <div id="lv-pills">
+    <span class="lv-pill">🌴 Miami</span>
+    <span class="lv-pill">☀️ Tampa Bay</span>
+    <span class="lv-pill">🗽 New York</span>
+    <span class="lv-pill">⚽ World Cup</span>
   </div>
-
-  <!-- Messages -->
-  <div id="lv-messages">
-    <div class="lv-msg ai">
-      Hey there 👋 I'm your Locavizion city guide — ask me anything about <strong>Miami</strong>, <strong>Tampa Bay</strong>, or <strong>New York</strong>. I can help with neighbourhoods, food, getting around, World Cup tips, and more.
-    </div>
+  <div id="lv-msgs">
+    <div class="lv-m ai">Hey there 👋 I'm your Locavizion city guide. Ask me anything about <strong>Miami</strong>, <strong>Tampa Bay</strong>, or <strong>New York</strong> — neighbourhoods, food, getting around, World Cup tips, and more.</div>
   </div>
-
-  <!-- Typing indicator -->
-  <div id="lv-typing">
-    <div class="lv-dot"></div>
-    <div class="lv-dot"></div>
-    <div class="lv-dot"></div>
-  </div>
-
-  <!-- Quick chips -->
+  <div id="lv-dots"><div class="lv-d"></div><div class="lv-d"></div><div class="lv-d"></div></div>
   <div id="lv-chips">
-    <button class="lv-chip" onclick="lvAskChip(this)">Best area to stay in Miami?</button>
-    <button class="lv-chip" onclick="lvAskChip(this)">Where locals eat in Tampa?</button>
-    <button class="lv-chip" onclick="lvAskChip(this)">World Cup fan zones?</button>
-    <button class="lv-chip" onclick="lvAskChip(this)">NYC neighbourhoods?</button>
+    <button class="lv-chip" data-q="Best area to stay in Miami for World Cup?">Best area in Miami?</button>
+    <button class="lv-chip" data-q="Where do locals eat in Tampa Bay?">Local eats in Tampa?</button>
+    <button class="lv-chip" data-q="World Cup fan zones in Miami?">Fan zones?</button>
+    <button class="lv-chip" data-q="Best neighbourhoods in New York City?">NYC neighbourhoods?</button>
   </div>
-
-  <!-- Input -->
-  <div id="lv-input-row">
-    <input
-      id="lv-input"
-      type="text"
-      placeholder="Ask about Miami, Tampa Bay or NYC..."
-      onkeydown="if(event.key==='Enter')lvSend()"
-      maxlength="300"
-    >
-    <button id="lv-send-btn" onclick="lvSend()">➤</button>
+  <div id="lv-row">
+    <input id="lv-inp" type="text" placeholder="Ask about Miami, Tampa Bay or NYC..." maxlength="300">
+    <button id="lv-go">➤</button>
   </div>
-
-  <div id="lv-footer-note">Not satisfied? Email us at <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="6d05080101022d01020e0c1b0417040203430e0200">[email&#160;protected]</a></div>
+  <div id="lv-foot">Need more help? Email hello&#64;locavizion.com</div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-document.addEventListener('DOMContentLoaded', function() {
-// ═══════════════════════════════════════════
-// LOCAVIZION AI CHAT WIDGET
-// ⚠️  REPLACE THE KEY BELOW WITH YOUR NEW KEY
-// Get it at: console.anthropic.com → API Keys
-// ═══════════════════════════════════════════
-// API calls go through your secure Cloudflare Worker — no key in this file
+<script>
+(function() {
+  // ── Everything inside an IIFE so it runs immediately and is self-contained ──
 
-var lvOpen = false;
-var lvHistory = [];
-var lvTyping = false;
+  var WORKER = 'https://locavizion-chat.qms6skh728.workers.dev';
+  var isOpen = false;
+  var busy   = false;
+  var history = [];
 
-// System prompt — defines everything the AI knows and how it behaves
-var LV_SYSTEM = `You are the Locavizion city guide — a warm, knowledgeable local insider for Miami, Tampa Bay, and New York City. You help travelers discover the authentic side of these cities during the FIFA World Cup 2026 and beyond.
+  var SYS = "You are the Locavizion city guide — a warm, knowledgeable local insider for Miami, Tampa Bay, and New York City during the FIFA World Cup 2026.\n\nPERSONALITY: Warm and specific like a well-connected local friend. Keep responses to 3-5 sentences. Always offer to help further.\n\nMIAMI: Wynwood (arts/murals), Brickell (business), Little Havana (Cuban culture, Calle Ocho), Miami Beach, Coconut Grove, Doral (Brazilian/Colombian community). Best food: Versailles (Cuban), Panther Coffee, Ball and Chain (live salsa), Coyo Taco. Hard Rock Stadium in Miami Gardens — 30min from downtown. World Cup matches: June 15, 21, 24, 27 and July 3, 11, 18. Brazil vs Scotland June 24 is the biggest match.\n\nTAMPA BAY: Ybor City (historic Cuban district, Columbia Restaurant since 1905), Seminole Heights (indie food), Hyde Park, St Petersburg Central Ave (arts, galleries). Best: Buddy Brew Coffee, Taco Bus, Oxford Exchange. St Pete is more walkable than Tampa.\n\nNEW YORK: Jackson Heights Queens (best international food on earth), Williamsburg Brooklyn, Greenwich Village, High Line/Chelsea. Subway runs 24/7 — tap contactless card. MetLife Stadium hosts World Cup Final July 19 — take NJ Transit from Penn Station.\n\nWORLD CUP 2026: June 11 to July 19. 48 teams, 104 matches. Fan tips: book accommodation early, arrive at stadium 2hrs early, use public transport on match days. Official FIFA Fan Festivals are free in each host city.\n\nABOUT LOCAVIZION: Hospitality intelligence platform — city guides by local insiders powered by AI. Tagline: See the world like a local. Traveler waitlist and curator applications at locavizion.com.\n\nIF ASKED ABOUT OTHER CITIES: Say Locavizion is currently live in Miami, Tampa Bay, and New York — expanding soon, join waitlist at locavizion.com.\n\nHANDOFF: For bookings, complaints, partnerships, or investor questions say: That is a great question for our team — reach us at hello&#64;locavizion.com and we will get back to you personally.";
 
-YOUR PERSONALITY:
-- Warm, friendly, and genuinely helpful — like a well-connected local friend
-- Specific and confident — never vague or generic
-- Concise — keep responses to 3–5 sentences unless more detail is truly needed
-- Always end with a follow-up question or offer to help further
+  function init() {
+    var btn   = document.getElementById('lv-btn');
+    var xbtn  = document.getElementById('lv-x');
+    var go    = document.getElementById('lv-go');
+    var inp   = document.getElementById('lv-inp');
+    var tip   = document.getElementById('lv-tip');
+    var chips = document.querySelectorAll('.lv-chip');
 
-YOUR KNOWLEDGE — MIAMI:
-- Neighbourhoods: Wynwood (arts/murals), Brickell (business/upscale), Little Havana (Cuban culture, Calle Ocho), Miami Beach (South Beach, tourist but beautiful), Coconut Grove (relaxed, local), Design District (luxury/art), Doral (Brazilian/Colombian community), Allapattah (emerging arts)
-- Food: Versailles Restaurant (iconic Cuban, Little Havana), Panther Coffee (best local coffee), Ball & Chain (live salsa, Calle Ocho), Coyo Taco (local favourite), Joe's Stone Crab (classic Miami), Zak the Baker (Wynwood)
-- Getting around: Uber/Lyft dominant, Metromover is free downtown, rent a Citi Bike for Brickell/Wynwood, Hard Rock Stadium is in Miami Gardens — 30min from downtown by Uber
-- World Cup: Miami hosts 7 matches June 15–July 18 at Hard Rock Stadium. Brazil vs Scotland June 24 is the biggest match. Portuguese vs Colombia June 27. Fan zones in Wynwood and Bayfront Park area.
-- Tips: Visit Little Havana before 7pm for the real local experience. Wynwood is best on weekday evenings. South Beach is beautiful but crowded — go early morning.
+    if (!btn) return; // elements not ready yet
 
-YOUR KNOWLEDGE — TAMPA BAY:
-- Neighbourhoods: Ybor City (historic Cuban cigar district, Columbia Restaurant since 1905), Seminole Heights (indie food scene), Hyde Park (upscale walkable), St. Petersburg/Central Ave (arts, galleries, First Friday Art Walk), Channelside (waterfront)
-- Food: Buddy Brew Coffee (best local coffee, Hyde Park), Taco Bus (Tampa institution, authentic Mexican, open late), Columbia Restaurant (oldest Spanish restaurant in US, flamenco show Fridays), Oxford Exchange (beautiful brunch spot)
-- Getting around: Car is essential in Tampa, Uber/Lyft everywhere. Free Downtowner electric car service in downtown Tampa. St. Pete is more walkable.
-- Events: Synapse Summit (major startup conference), Gasparilla Music Festival, Embarc Collective (startup hub), Tampa Bay Wave (tech accelerator)
-- Tips: St. Petersburg across the bridge is underrated — better arts scene and more walkable than Tampa proper. Visit Ybor City for dinner then live music.
-
-YOUR KNOWLEDGE — NEW YORK CITY:
-- Neighbourhoods: Lower East Side (food/bars), Williamsburg Brooklyn (creative/trendy), Astoria Queens (Greek/Middle Eastern food), Jackson Heights Queens (most diverse food on earth), Greenwich Village (classic NYC), High Line area (Chelsea, art galleries), Harlem (culture, soul food)
-- Food: Jackson Heights for international food (Bangladeshi, Indian, Colombian, Mexican all within blocks), Di Fara Pizza (Brooklyn institution), Russ & Daughters (iconic Jewish deli), Xi'an Famous Foods (hand-pulled noodles, Queens)
-- Getting around: Subway is your best friend — get a MetroCard or tap with contactless card. Avoid taxis in Midtown traffic. Walk whenever under 20 blocks.
-- World Cup: MetLife Stadium in East Rutherford NJ hosts 6 matches PLUS the FIFA World Cup FINAL on July 19. Take NJ Transit from Penn Station directly to the stadium. Book early.
-- Tips: Go to Queens for the best food at a fraction of Manhattan prices. The subway runs 24/7. Avoid Times Square except to say you've been.
-
-WORLD CUP 2026 GENERAL KNOWLEDGE:
-- Tournament runs June 11 to July 19, 2026
-- 48 teams, 104 matches across 16 cities in USA, Canada, Mexico
-- Miami matches: June 15, 21, 24, 27 (group stage) + July 3, 11, 18 (knockout)
-- NYC/NJ matches: Multiple group stage + THE FINAL July 19 at MetLife Stadium
-- Fan tips: Book accommodation early — prices surge match week. Buy tickets at FIFA.com. Arrive at stadium 2 hours early. Use public transport on match days — roads are gridlocked.
-- Fan zones: Free official FIFA Fan Festivals in each host city — entry is free, live screens, food, entertainment
-
-WHAT YOU DO NOT ANSWER:
-- Questions about cities other than Miami, Tampa Bay, and NYC — say "Locavizion is currently live in Miami, Tampa Bay, and New York. We're expanding soon — join the waitlist at locavizion.com"
-- Medical, legal, or financial advice
-- Anything unrelated to travel, cities, or Locavizion
-
-ABOUT LOCAVIZION:
-- A hospitality intelligence platform — city guides curated by local insiders, powered by AI
-- Tagline: "See the world like a local"
-- Three features: Network with intent (meet the right people), Curator-led experiences (local insider hosts), Living city guides (always updated)
-- Traveler waitlist: locavizion.com
-- Curator applications: For local insiders who want to host experiences and earn income from their city knowledge
-- Contact: hello&#64;locavizion.com
-- World Cup Edition: $9.99/month for the 39-day tournament window
-
-HANDOFF RULE:
-If someone asks about bookings, complaints, partnership inquiries, hotel partnerships, investor questions, or anything you cannot answer confidently — always say: "That's a great question for our team directly. Reach us at hello&#64;locavizion.com and we'll get back to you personally. Is there anything about the city I can help with in the meantime?"
-
-Keep responses warm, specific, and genuinely useful. You are a knowledgeable local friend — not a search engine.`;
-
-function lvToggleChat() {
-  lvOpen = !lvOpen;
-  var win = document.getElementById('lv-chat-window');
-  var tip = document.getElementById('lv-bubble-tip');
-  if (lvOpen) {
-    win.classList.add('open');
-    if (tip) tip.style.display = 'none';
+    // Show tip after 1.5s
     setTimeout(function() {
-      document.getElementById('lv-input').focus();
-    }, 250);
-  } else {
-    win.classList.remove('open');
-  }
-}
+      if (tip) tip.classList.add('show');
+    }, 1500);
 
-function lvAddMsg(text, role) {
-  var messages = document.getElementById('lv-messages');
-  var div = document.createElement('div');
-  div.className = 'lv-msg ' + role;
-  // Simple markdown: bold
-  div.innerHTML = text
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-    .replace(/
+    // Toggle open/close
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      toggle();
+    });
+
+    xbtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      close();
+    });
+
+    // Send on button click
+    go.addEventListener('click', function() {
+      send();
+    });
+
+    // Send on Enter key
+    inp.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') send();
+    });
+
+    // Chip clicks
+    chips.forEach(function(chip) {
+      chip.addEventListener('click', function() {
+        var q = chip.getAttribute('data-q');
+        document.getElementById('lv-chips').style.display = 'none';
+        sendMsg(q);
+      });
+    });
+
+    // Close on outside click
+    document.addEventListener('click', function(e) {
+      if (!isOpen) return;
+      var win = document.getElementById('lv-win');
+      var b   = document.getElementById('lv-btn');
+      if (win && b && !win.contains(e.target) && !b.contains(e.target)) {
+        close();
+      }
+    });
+  }
+
+  function toggle() {
+    var win = document.getElementById('lv-win');
+    var tip = document.getElementById('lv-tip');
+    if (isOpen) {
+      close();
+    } else {
+      isOpen = true;
+      win.classList.add('on');
+      if (tip) tip.style.display = 'none';
+      setTimeout(function() {
+        var inp = document.getElementById('lv-inp');
+        if (inp) inp.focus();
+      }, 200);
+    }
+  }
+
+  function close() {
+    isOpen = false;
+    var win = document.getElementById('lv-win');
+    if (win) win.classList.remove('on');
+  }
+
+  function send() {
+    var inp  = document.getElementById('lv-inp');
+    var text = inp ? inp.value.trim() : '';
+    if (!text || busy) return;
+    inp.value = '';
+    document.getElementById('lv-chips').style.display = 'none';
+    sendMsg(text);
+  }
+
+  function addMsg(text, role) {
+    var msgs = document.getElementById('lv-msgs');
+    var div  = document.createElement('div');
+    div.className = 'lv-m ' + role;
+    div.innerHTML = text
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+      .replace(/
 /g,'<br>');
-  messages.appendChild(div);
-  messages.scrollTop = messages.scrollHeight;
-  return div;
-}
-
-function lvShowTyping(show) {
-  var t = document.getElementById('lv-typing');
-  var messages = document.getElementById('lv-messages');
-  t.className = show ? 'lv-msg ai show' : 'lv-msg ai';
-  if (show) messages.scrollTop = messages.scrollHeight;
-}
-
-function lvAskChip(btn) {
-  var text = btn.textContent;
-  // Hide chips after first use to keep chat clean
-  document.getElementById('lv-chips').style.display = 'none';
-  lvSendMessage(text);
-}
-
-function lvSend() {
-  var input = document.getElementById('lv-input');
-  var text = input.value.trim();
-  if (!text || lvTyping) return;
-  input.value = '';
-  // Hide chips once user starts chatting
-  document.getElementById('lv-chips').style.display = 'none';
-  lvSendMessage(text);
-}
-
-function lvSendMessage(text) {
-  if (!text || lvTyping) return;
-
-  // Add to history and display
-  lvHistory.push({ role: 'user', content: text });
-  lvAddMsg(text, 'user');
-  lvTyping = true;
-
-  var sendBtn = document.getElementById('lv-send-btn');
-  if (sendBtn) sendBtn.disabled = true;
-
-  lvShowTyping(true);
-
-  // Call Cloudflare Worker (API key is stored securely there — never in this file)
-  fetch('https://locavizion-chat.qms6skh728.workers.dev', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      system: LV_SYSTEM,
-      messages: lvHistory.slice(-8)
-    })
-  })
-  .then(function(r) {
-    if (!r.ok) throw new Error('API error ' + r.status);
-    return r.json();
-  })
-  .then(function(data) {
-    lvShowTyping(false);
-    var reply = data.content && data.content[0] && data.content[0].text
-      ? data.content[0].text
-      : "I'm having a moment — please try again!";
-    lvHistory.push({ role: 'assistant', content: reply });
-    lvAddMsg(reply, 'ai');
-    lvTyping = false;
-    if (sendBtn) sendBtn.disabled = false;
-  })
-  .catch(function(err) {
-    lvShowTyping(false);
-    lvTyping = false;
-    if (sendBtn) sendBtn.disabled = false;
-    lvAddMsg('Something went wrong on my end. Please try again or email us at hello&#64;locavizion.com', 'ai');
-    console.error('Locavizion Chat error:', err);
-  });
-}
-
-// Close chat when clicking outside
-document.addEventListener('click', function(e) {
-  if (!lvOpen) return;
-  var win = document.getElementById('lv-chat-window');
-  var btn = document.getElementById('lv-bubble-btn');
-  if (win && btn && !win.contains(e.target) && !btn.contains(e.target)) {
-    lvOpen = false;
-    win.classList.remove('open');
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
   }
-});
 
-}); // end DOMContentLoaded
+  function setTyping(show) {
+    var dots = document.getElementById('lv-dots');
+    var msgs = document.getElementById('lv-msgs');
+    if (dots) dots.className = show ? 'on' : '';
+    if (show && msgs) msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function sendMsg(text) {
+    if (!text || busy) return;
+    busy = true;
+
+    history.push({ role: 'user', content: text });
+    addMsg(text, 'usr');
+    setTyping(true);
+
+    var go = document.getElementById('lv-go');
+    if (go) go.disabled = true;
+
+    fetch(WORKER, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        system: SYS,
+        messages: history.slice(-8)
+      })
+    })
+    .then(function(r) {
+      if (!r.ok) throw new Error('Status ' + r.status);
+      return r.json();
+    })
+    .then(function(data) {
+      setTyping(false);
+      busy = false;
+      if (go) go.disabled = false;
+
+      var reply = (data.content && data.content[0] && data.content[0].text)
+        ? data.content[0].text
+        : 'I had a moment there — please try again!';
+
+      history.push({ role: 'assistant', content: reply });
+      addMsg(reply, 'ai');
+    })
+    .catch(function(err) {
+      setTyping(false);
+      busy = false;
+      if (go) go.disabled = false;
+      addMsg('Something went wrong. Please try again or email us at hello&#64;locavizion.com', 'ai');
+      console.error('LV chat error:', err);
+    });
+  }
+
+  // Run init when DOM is ready — works whether page is loaded or not
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();
 </script>
+
 </body>
 </html>
