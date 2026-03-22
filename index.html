@@ -895,42 +895,33 @@ footer {
 // ── 1. CONSTANTS ──
 const FORM_URL = 'https://forms.gle/PZANNvmiHqB2Ruet7';
 
-// ── 2. REAL SHARED LIVE COUNTER ──
-// Uses Netlify's free serverless function OR a public Google Sheets counter.
-// Works identically for every visitor anywhere in the world.
-// localStorage keeps the number from dropping on the SAME device between visits.
+// ── 2. LIVE COUNTER — reads real row count from your Google Form responses ──
+// This CSV is your actual Google Form submissions sheet — published publicly.
+// Every row = one real person who completed your form.
+// The counter counts rows, subtracts the header row, and shows the result.
+// Updates automatically every time someone submits the form.
 
-const BASELINE = 2; // your real starting number
+const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSYy_RvaXTPJoquZ7tPHFaEkNOFiyQwqHjaWqYrbzSKw19KcPaqJJIe38Q9BBInsjfWEprIu0pgQi6j/pub?gid=1021281501&single=true&output=csv';
 
-// The most reliable free shared counter: a public Google Sheet cell
-// that stores just a number, readable by anyone via JSON feed.
-// HOW IT WORKS:
-//   - We store the count in a tiny public Google Sheet
-//   - The sheet is published as a CSV — anyone can read it
-//   - When someone signs up, we write +1 via a Google Apps Script web app
-//   - Every page load fetches the latest number
-//
-// SETUP (one-time, 5 minutes — instructions below the script):
-const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSYy_RvaXTPJoquZ7tPHFaEkNOFiyQwqHjaWqYrbzSKw19KcPaqJJIe38Q9BBInsjfWEprIu0pgQi6j/pub?gid=1021281501&single=true&output=csv'; // replace after setup
-const APPS_SCRIPT_URL = 'Yhttps://script.google.com/macros/s/AKfycbzSv68rovLpqLCESHcHLvHUSObHoUTFfh_kdaxy5uVYYPWuUkjHtIWRVHSUtH8owjj4VQ/exec';    // replace after setup
-
-// localStorage key — remembers the highest count this device has seen
-// so the number never drops to 2 on return visits
-const LS_KEY = 'locavizion_best_count';
+// localStorage remembers the highest count this device has seen
+// so the number never drops backward on return visits
+const LS_KEY = 'locavizion_real_count';
 
 function getLocalBest() {
-  try {
-    return parseInt(localStorage.getItem(LS_KEY) || BASELINE);
-  } catch(e) { return BASELINE; }
+  try { return parseInt(localStorage.getItem(LS_KEY) || '0'); }
+  catch(e) { return 0; }
 }
 
 function setLocalBest(n) {
-  try { if (n > getLocalBest()) localStorage.setItem(LS_KEY, n); }
+  try { if (n > getLocalBest()) localStorage.setItem(LS_KEY, String(n)); }
   catch(e) {}
 }
 
 function updateCountDisplays(n) {
-  var display = Math.max(n, getLocalBest(), BASELINE);
+  // Always show at least what this device has seen before
+  var display = Math.max(n, getLocalBest());
+  // Never show less than 1 (looks better than 0 on a fresh sheet)
+  if (display < 1) display = 1;
   setLocalBest(display);
   var nav   = document.getElementById('countDisplay');
   var proof = document.getElementById('proofCount');
@@ -938,36 +929,38 @@ function updateCountDisplays(n) {
   if (proof) proof.textContent = display;
 }
 
-// Show locally remembered count instantly, then fetch live
+// Show locally remembered number immediately while fetch loads
 updateCountDisplays(getLocalBest());
 
 function loadCount() {
-  if (SHEET_CSV_URL === 'YOUR_GOOGLE_SHEET_CSV_URL') {
-    // Sheet not configured yet — show local best
-    updateCountDisplays(getLocalBest());
-    return;
-  }
-  fetch(SHEET_CSV_URL + '&t=' + Date.now()) // cache-bust
+  // Add timestamp to prevent browser caching stale CSV
+  fetch(SHEET_CSV_URL + '&cachebust=' + Date.now())
     .then(function(r) { return r.text(); })
     .then(function(csv) {
-      var n = parseInt(csv.trim().split('\n').pop());
-      if (!isNaN(n)) updateCountDisplays(BASELINE + n);
+      // Count non-empty rows, subtract 1 for the header row
+      var rows = csv.trim().split('\n').filter(function(row) {
+        return row.trim().length > 0;
+      });
+      // rows.length includes the header — subtract 1 for real signups
+      var signups = Math.max(rows.length - 1, 0);
+      updateCountDisplays(signups);
     })
-    .catch(function() { updateCountDisplays(getLocalBest()); });
+    .catch(function() {
+      // If fetch fails, keep showing the local best — never drop to 0
+      updateCountDisplays(getLocalBest());
+    });
 }
 
+// When someone submits — show +1 immediately, then reload real count
 function bumpCount() {
-  // Optimistic immediate bump
-  var current = Math.max(getLocalBest(), BASELINE);
+  var current = getLocalBest();
   updateCountDisplays(current + 1);
-
-  // Write to Google Apps Script (increments the sheet counter)
-  if (APPS_SCRIPT_URL !== 'Yhttps://script.google.com/macros/s/AKfycbzSv68rovLpqLCESHcHLvHUSObHoUTFfh_kdaxy5uVYYPWuUkjHtIWRVHSUtH8owjj4VQ/exec') {
-    fetch(APPS_SCRIPT_URL + '?action=increment', { method: 'GET', mode: 'no-cors' })
-      .catch(function() {}); // silent fail — optimistic bump already shown
-  }
+  // Re-fetch after 4 seconds to get the real updated count
+  // (Google Sheets CSV updates within a few seconds of a new submission)
+  setTimeout(loadCount, 4000);
 }
 
+// Load the real count as soon as the page opens
 loadCount();
 
 // ── 3. TOP FORM SUBMIT ──
