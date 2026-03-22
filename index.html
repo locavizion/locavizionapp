@@ -1470,6 +1470,7 @@ problemItems.forEach(function(el) { revealObserver.observe(el); });
 </div>
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+document.addEventListener('DOMContentLoaded', function() {
 // ═══════════════════════════════════════════
 // LOCAVIZION AI CHAT WIDGET
 // ⚠️  REPLACE THE KEY BELOW WITH YOUR NEW KEY
@@ -1530,11 +1531,11 @@ ABOUT LOCAVIZION:
 - Three features: Network with intent (meet the right people), Curator-led experiences (local insider hosts), Living city guides (always updated)
 - Traveler waitlist: locavizion.com
 - Curator applications: For local insiders who want to host experiences and earn income from their city knowledge
-- Contact: hello@locavizion.com
+- Contact: hello&#64;locavizion.com
 - World Cup Edition: $9.99/month for the 39-day tournament window
 
 HANDOFF RULE:
-If someone asks about bookings, complaints, partnership inquiries, hotel partnerships, investor questions, or anything you cannot answer confidently — always say: "That's a great question for our team directly. Reach us at hello@locavizion.com and we'll get back to you personally. Is there anything about the city I can help with in the meantime?"
+If someone asks about bookings, complaints, partnership inquiries, hotel partnerships, investor questions, or anything you cannot answer confidently — always say: "That's a great question for our team directly. Reach us at hello&#64;locavizion.com and we'll get back to you personally. Is there anything about the city I can help with in the meantime?"
 
 Keep responses warm, specific, and genuinely useful. You are a knowledgeable local friend — not a search engine.`;
 
@@ -1634,7 +1635,7 @@ function lvSendMessage(text) {
     lvShowTyping(false);
     lvTyping = false;
     if (sendBtn) sendBtn.disabled = false;
-    lvAddMsg('Something went wrong on my end. Please try again or email us at hello@locavizion.com', 'ai');
+    lvAddMsg('Something went wrong on my end. Please try again or email us at hello&#64;locavizion.com', 'ai');
     console.error('Locavizion Chat error:', err);
   });
 }
@@ -1642,4 +1643,15 @@ function lvSendMessage(text) {
 // Close chat when clicking outside
 document.addEventListener('click', function(e) {
   if (!lvOpen) return;
-  var win = document.getEl
+  var win = document.getElementById('lv-chat-window');
+  var btn = document.getElementById('lv-bubble-btn');
+  if (win && btn && !win.contains(e.target) && !btn.contains(e.target)) {
+    lvOpen = false;
+    win.classList.remove('open');
+  }
+});
+
+}); // end DOMContentLoaded
+</script>
+</body>
+</html>
