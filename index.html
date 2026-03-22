@@ -618,7 +618,7 @@ function lvMsg(text, role) {
   if (!msgs) return;
   var d = document.createElement('div');
   d.className = 'lv-m ' + role;
-  var safe = text.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  var safe = text.split('<').join('&lt;').split('>').join('&gt;');
   safe = safe.split('\n').join('<br>');
   d.innerHTML = safe;
   msgs.appendChild(d);
