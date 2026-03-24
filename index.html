@@ -690,6 +690,28 @@ function lvChat(txt) {
     console.error('LV:', e);
   });
 }
+
+// ── EMAIL LINKS — assembled via JS so Cloudflare obfuscation cannot touch them ──
+document.addEventListener('DOMContentLoaded', function() {
+  var u = 'info';
+  var d = 'locavizion.com';
+  var full = u + '@' + d;
+
+  var link = document.getElementById('contact-email-link');
+  if (link) {
+    link.href = 'mailto:' + full;
+    link.textContent = full;
+  }
+
+  var chatEmail = document.getElementById('chat-email');
+  if (chatEmail) {
+    var mailLink = document.createElement('a');
+    mailLink.href = 'mailto:' + full;
+    mailLink.textContent = full;
+    mailLink.style.color = 'rgba(196,154,42,0.6)';
+    chatEmail.parentNode.replaceChild(mailLink, chatEmail);
+  }
+});
 </script>
 </head>
 <body>
@@ -698,9 +720,34 @@ function lvChat(txt) {
 
 <!-- ─── NAV ─── -->
 <nav>
-  <div style="display:flex;flex-direction:column;gap:0.15rem">
-    <div class="nav-logo">Locavizion</div>
-    <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.68rem;letter-spacing:0.12em;color:rgba(196,154,42,0.65)">See the world like a local.</div>
+  <div style="display:flex;align-items:center;gap:0.75rem">
+    <!-- Eye + World Logo Mark -->
+    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+      <!-- Outer eye shape -->
+      <path d="M3 18 Q18 6 33 18 Q18 30 3 18Z" stroke="#c49a2a" stroke-width="1.4" fill="none"/>
+      <!-- Iris circle -->
+      <circle cx="18" cy="18" r="7.5" stroke="#c49a2a" stroke-width="1.4" fill="none"/>
+      <!-- Globe longitude lines clipped to iris -->
+      <clipPath id="eye-clip">
+        <circle cx="18" cy="18" r="7.5"/>
+      </clipPath>
+      <g clip-path="url(#eye-clip)">
+        <!-- Vertical meridian -->
+        <line x1="18" y1="10.5" x2="18" y2="25.5" stroke="rgba(196,154,42,0.5)" stroke-width="0.8"/>
+        <!-- Horizontal equator -->
+        <line x1="10.5" y1="18" x2="25.5" y2="18" stroke="rgba(196,154,42,0.5)" stroke-width="0.8"/>
+        <!-- Upper latitude -->
+        <ellipse cx="18" cy="18" rx="7.5" ry="3.2" stroke="rgba(196,154,42,0.4)" stroke-width="0.8" fill="none"/>
+        <!-- Narrow meridian -->
+        <ellipse cx="18" cy="18" rx="3.2" ry="7.5" stroke="rgba(196,154,42,0.4)" stroke-width="0.8" fill="none"/>
+      </g>
+      <!-- Pupil -->
+      <circle cx="18" cy="18" r="2" fill="#c49a2a"/>
+    </svg>
+    <div style="display:flex;flex-direction:column;gap:0.1rem">
+      <div class="nav-logo">Locavizion</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.66rem;letter-spacing:0.1em;color:rgba(196,154,42,0.6)">See the world like a local.</div>
+    </div>
   </div>
   <div class="nav-count">
     <span id="countDisplay" style="min-width:1.5rem;display:inline-block">—</span> travelers on the list
@@ -1064,7 +1111,7 @@ function lvChat(txt) {
   <div class="footer-logo">Locavizion</div>
   <div class="footer-note">© 2026 Locavizion · Pre-launch</div>
   <div class="footer-links">
-    <a href="/cdn-cgi/l/email-protection#6b030e0707042b0704080a070e450a1b1b" class="footer-link"><span class="__cf_email__" data-cfemail="93fbf6fffffcd3fffcf0f2fff6bdf2e3e3">[email&#160;protected]</span></a>
+    <a href="#" class="footer-link" id="contact-email-link">info&#64;locavizion.com</a>
     <a href="#" class="footer-link">Privacy</a>
   </div>
 </footer>
@@ -1279,7 +1326,7 @@ problemItems.forEach(function(el) { revealObserver.observe(el); });
     <input id="lv-inp" type="text" placeholder="Ask about Miami, Tampa Bay or NYC..." maxlength="300" onkeydown="if(event.key==='Enter')lvSend()">
     <button id="lv-go" onclick="lvSend()">➤</button>
   </div>
-  <div id="lv-foot">Need more help? Email hello&#64;locavizion.com</div>
+  <div id="lv-foot">Questions? Email <span id="chat-email">info&#64;locavizion.com</span></div>
 </div>
 
 </body>
