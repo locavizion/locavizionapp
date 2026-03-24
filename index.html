@@ -81,8 +81,9 @@ body::before {
 /* ─── NAV ─── */
 nav {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 1.75rem 5%;
+  padding: 1.5rem 5%;
   border-bottom: 1px solid rgba(255,255,255,0.06);
+  gap: 0.75rem;
 }
 
 .nav-logo {
@@ -91,13 +92,36 @@ nav {
   text-transform: uppercase; color: var(--gold);
 }
 
+.nav-tagline {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic; font-size: 0.66rem;
+  letter-spacing: 0.1em; color: rgba(196,154,42,0.6);
+}
+
 .nav-count {
-  font-size: 0.65rem; font-weight: 500; letter-spacing: 0.15em;
+  font-size: 0.62rem; font-weight: 500; letter-spacing: 0.12em;
   color: rgba(255,255,255,0.35); text-transform: uppercase;
+  white-space: nowrap; flex-shrink: 0;
 }
 
 .nav-count span {
   color: var(--gold); font-weight: 600;
+}
+
+/* Mobile nav — clean two-row layout */
+@media (max-width: 480px) {
+  nav {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.1rem 5%;
+    gap: 0.45rem;
+  }
+  .nav-tagline { display: none; }
+  .nav-count {
+    font-size: 0.58rem;
+    color: rgba(255,255,255,0.28);
+    letter-spacing: 0.1em;
+  }
 }
 
 /* ─── HERO ─── */
@@ -591,7 +615,6 @@ footer {
   .form-city-row { grid-template-columns: 1fr; }
   .hero { padding: 4rem 5% 3rem; }
   .type-tab { padding: 0.75rem 0.85rem; font-size: 0.62rem; }
-  nav { padding: 1.25rem 5%; }
 }
 </style>
 
@@ -720,37 +743,30 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- ─── NAV ─── -->
 <nav>
-  <div style="display:flex;align-items:center;gap:0.75rem">
-    <!-- Eye + World Logo Mark -->
-    <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
-      <!-- Outer eye shape -->
+  <!-- Left: logo mark + name + tagline -->
+  <div style="display:flex;align-items:center;gap:0.7rem;min-width:0">
+    <svg width="32" height="32" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
       <path d="M3 18 Q18 6 33 18 Q18 30 3 18Z" stroke="#c49a2a" stroke-width="1.4" fill="none"/>
-      <!-- Iris circle -->
       <circle cx="18" cy="18" r="7.5" stroke="#c49a2a" stroke-width="1.4" fill="none"/>
-      <!-- Globe longitude lines clipped to iris -->
       <clipPath id="eye-clip">
         <circle cx="18" cy="18" r="7.5"/>
       </clipPath>
       <g clip-path="url(#eye-clip)">
-        <!-- Vertical meridian -->
-        <line x1="18" y1="10.5" x2="18" y2="25.5" stroke="rgba(196,154,42,0.5)" stroke-width="0.8"/>
-        <!-- Horizontal equator -->
-        <line x1="10.5" y1="18" x2="25.5" y2="18" stroke="rgba(196,154,42,0.5)" stroke-width="0.8"/>
-        <!-- Upper latitude -->
-        <ellipse cx="18" cy="18" rx="7.5" ry="3.2" stroke="rgba(196,154,42,0.4)" stroke-width="0.8" fill="none"/>
-        <!-- Narrow meridian -->
-        <ellipse cx="18" cy="18" rx="3.2" ry="7.5" stroke="rgba(196,154,42,0.4)" stroke-width="0.8" fill="none"/>
+        <line x1="18" y1="10.5" x2="18" y2="25.5" stroke="rgba(196,154,42,0.5)" stroke-width="0.9"/>
+        <line x1="10.5" y1="18" x2="25.5" y2="18" stroke="rgba(196,154,42,0.5)" stroke-width="0.9"/>
+        <ellipse cx="18" cy="18" rx="7.5" ry="3.2" stroke="rgba(196,154,42,0.38)" stroke-width="0.8" fill="none"/>
+        <ellipse cx="18" cy="18" rx="3.2" ry="7.5" stroke="rgba(196,154,42,0.38)" stroke-width="0.8" fill="none"/>
       </g>
-      <!-- Pupil -->
       <circle cx="18" cy="18" r="2" fill="#c49a2a"/>
     </svg>
-    <div style="display:flex;flex-direction:column;gap:0.1rem">
+    <div style="display:flex;flex-direction:column;gap:0.08rem;min-width:0">
       <div class="nav-logo">Locavizion</div>
-      <div style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.66rem;letter-spacing:0.1em;color:rgba(196,154,42,0.6)">See the world like a local.</div>
+      <div class="nav-tagline">See the world like a local.</div>
     </div>
   </div>
+  <!-- Right: live traveler count -->
   <div class="nav-count">
-    <span id="countDisplay" style="min-width:1.5rem;display:inline-block">—</span> travelers on the list
+    <span id="countDisplay" style="min-width:1.5rem;display:inline-block">—</span> travelers
   </div>
 </nav>
 
