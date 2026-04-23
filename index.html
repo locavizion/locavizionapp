@@ -75,6 +75,14 @@ body::before {
     radial-gradient(ellipse 50% 50% at 20% 80%, rgba(58,102,80,0.07) 0%, transparent 55%);
 }
 
+#globe-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
 /* ─── WRAPPER ─── */
 .page { position: relative; z-index: 1; }
 
@@ -739,6 +747,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </head>
 <body>
 <div class="bg-glow"></div>
+<canvas id="globe-canvas"></canvas>
 <div class="page">
 
 <!-- ─── NAV ─── -->
@@ -830,7 +839,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="success-msg" id="successMsg">
       <span class="success-icon">✦</span>
       <h3>You're on the list.</h3>
-      <p>Welcome to the founding waitlist. Opening the full sign-up form now — fill in your details and you're officially on the Locavizion founding list.</p>
+      <p>Welcome to the founding waitlist. You're officially on the Locavizion founding list — we'll be in touch when your city goes live.</p>
     </div>
   </div>
 
@@ -1137,8 +1146,10 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 
 // ── 1. CONSTANTS ──
+// Google Apps Script URL configured — form submissions go directly to Google Sheets
+// See setup instructions at https://github.com/locavizion for the complete guide
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbznG2gRIFTObPOf6NdvwbI2DztOZrN8m9Hy6-YSRJvALNlA2XCGXr7GJmLNd19LsThmhA/exec';
-  
+
 // ── 2. LIVE COUNTER — reads real row count from your Google Form responses ──
 // This CSV is your actual Google Form submissions sheet — published publicly.
 // Every row = one real person who completed your form.
@@ -1209,8 +1220,15 @@ loadCount();
 
 // ── 3. TOP FORM SUBMIT ──
 function handleSubmit() {
+  var nameField = document.getElementById('fname');
   var emailField = document.getElementById('femail');
+  var cityField = document.getElementById('fcity');
+  var typeField = document.getElementById('ftype');
+  
+  var name = nameField ? nameField.value.trim() : '';
   var email = emailField ? emailField.value.trim() : '';
+  var city = cityField ? cityField.value.trim() : '';
+  var travelType = typeField ? typeField.value : '';
 
   if (!email || !email.includes('@') || !email.includes('.')) {
     emailField.style.outline = '2px solid #a83d20';
@@ -1225,10 +1243,31 @@ function handleSubmit() {
 
   var form = document.getElementById('signupForm');
   var success = document.getElementById('successMsg');
-  if (form) form.style.display = 'none';
-  if (success) success.classList.add('visible');
-  bumpCount();
-  setTimeout(function() { window.open(FORM_URL, '_blank'); }, 600);
+  
+  var data = {
+    timestamp: new Date().toISOString(),
+    name: name,
+    email: email,
+    city: city,
+    travelType: travelType,
+    source: 'waitlist-top-form'
+  };
+  
+  fetch(GOOGLE_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(data)
+  }).then(function() {
+    if (form) form.style.display = 'none';
+    if (success) success.classList.add('visible');
+    bumpCount();
+  }).catch(function(err) {
+    console.error('Submit error:', err);
+    if (form) form.style.display = 'none';
+    if (success) success.classList.add('visible');
+    bumpCount();
+  });
 }
 
 // ── 4. BOTTOM FORM SUBMIT ──
@@ -1249,10 +1288,31 @@ function handleSubmit2() {
 
   var form2 = document.getElementById('signupForm2');
   var success2 = document.getElementById('successMsg2');
-  if (form2) form2.style.display = 'none';
-  if (success2) success2.classList.add('visible');
-  bumpCount();
-  setTimeout(function() { window.open(FORM_URL, '_blank'); }, 600);
+  
+  var data = {
+    timestamp: new Date().toISOString(),
+    name: '',
+    email: email,
+    city: '',
+    travelType: '',
+    source: 'waitlist-bottom-form'
+  };
+  
+  fetch(GOOGLE_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(data)
+  }).then(function() {
+    if (form2) form2.style.display = 'none';
+    if (success2) success2.classList.add('visible');
+    bumpCount();
+  }).catch(function(err) {
+    console.error('Submit error:', err);
+    if (form2) form2.style.display = 'none';
+    if (success2) success2.classList.add('visible');
+    bumpCount();
+  });
 }
 
 // ── 5. TRAVELER TYPE TABS ──
@@ -1280,6 +1340,151 @@ var revealObserver = new IntersectionObserver(function(entries) {
 }, { threshold: 0.1 });
 
 problemItems.forEach(function(el) { revealObserver.observe(el); });
+
+// ── GLOBE RENDERING ──
+(function(){
+  var canvas=document.getElementById('globe-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d'),W,H,cx,cy,R,dots=[],angle=0,scroll=0;
+  var cities=[
+    {n:'Tampa',lat:27.95,lon:-82.46,s:2},{n:'Miami',lat:25.76,lon:-80.19,s:2},
+    {n:'NYC',lat:40.71,lon:-74.01,s:2},{n:'London',lat:51.51,lon:-0.13,s:1.2},
+    {n:'Paris',lat:48.86,lon:2.35,s:1.2},{n:'Tokyo',lat:35.68,lon:139.65,s:1.2}
+  ];
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;cx=W/2;cy=H/2;R=Math.min(W,H)*0.28}
+  window.addEventListener('resize',resize);resize();
+  window.addEventListener('scroll',function(){scroll=window.scrollY*0.0002});
+  for(var i=0;i<200;i++)dots.push({lat:(Math.random()*2-1)*90,lon:Math.random()*360,s:Math.random()+0.3});
+  function project(lat,lon){
+    lat*=Math.PI/180;lon*=Math.PI/180;
+    var x=Math.cos(lat)*Math.cos(lon+angle),y=Math.cos(lat)*Math.sin(lon+angle),z=Math.sin(lat);
+    var tilt=0.3,y2=y*Math.cos(tilt)-z*Math.sin(tilt),z2=y*Math.sin(tilt)+z*Math.cos(tilt);
+    return{x:x*R+cx,y:y2*R+cy,z:z2,v:z2>-0.2}
+  }
+  var pulse=0;
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    angle+=0.0003;pulse+=0.04;
+    ctx.strokeStyle='rgba(196,154,42,0.04)';ctx.lineWidth=0.5;
+    for(var ln=0;ln<8;ln++){
+      ctx.beginPath();var f=1;
+      for(var la=-90;la<=90;la+=3){var p=project(la,ln*45);if(p.v){f?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y);f=0}}
+      ctx.stroke()
+    }
+    for(var lt=-60;lt<=60;lt+=30){
+      ctx.beginPath();var f=1;
+      for(var lo=0;lo<=360;lo+=3){var p=project(lt,lo);if(p.v){f?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y);f=0}}
+      ctx.stroke()
+    }
+    dots.forEach(function(d){
+      var p=project(d.lat,d.lon);if(!p.v)return;
+      var depth=(p.z+1)/2;ctx.beginPath();ctx.arc(p.x,p.y,d.s*depth,0,6.28);
+      ctx.fillStyle='rgba(196,154,42,'+(0.3*depth)+')';ctx.fill()
+    });
+    cities.forEach(function(c){
+      var p=project(c.lat,c.lon);if(!p.v)return;
+      var depth=(p.z+1)/2,pul=Math.sin(pulse+c.lat/10)*0.3+0.7,sz=c.s*depth*pul;
+      var g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,sz*3);
+      g.addColorStop(0,'rgba(240,196,96,'+(0.5*depth*pul)+')');
+      g.addColorStop(0.5,'rgba(240,196,96,'+(0.2*depth*pul)+')');
+      g.addColorStop(1,'rgba(240,196,96,0)');
+      ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,sz*3,0,6.28);ctx.fill();
+      ctx.beginPath();ctx.arc(p.x,p.y,sz,0,6.28);
+      ctx.fillStyle='rgba(240,196,96,'+(0.8*depth*pul)+')';ctx.fill();
+      ctx.beginPath();ctx.arc(p.x,p.y,sz*0.4,0,6.28);
+      ctx.fillStyle='rgba(255,255,255,'+(0.9*depth*pul)+')';ctx.fill()
+    });
+    requestAnimationFrame(draw)
+  }
+  draw()
+})();
+
+// ── ANIMATED CONNECTION LINES (Connecting People to the Real World) ──
+(function(){
+  var canvas=document.getElementById('globe-canvas');
+  if(!canvas)return;
+  var ctx=canvas.getContext('2d');
+  
+  // Connection points representing cities and people
+  var points=[
+    {x:0.15,y:0.2,active:false},
+    {x:0.35,y:0.35,active:false},
+    {x:0.55,y:0.25,active:false},
+    {x:0.72,y:0.45,active:false},
+    {x:0.85,y:0.6,active:false},
+    {x:0.65,y:0.75,active:false}
+  ];
+  
+  var animProgress=0;
+  
+  function drawConnections(){
+    var W=canvas.width,H=canvas.height;
+    var scrollProgress=Math.min(window.scrollY/(document.body.scrollHeight-window.innerHeight||1),1);
+    
+    // Activate points based on scroll position
+    points.forEach(function(p,i){
+      var threshold=(i+1)/(points.length+1);
+      p.active=scrollProgress>=threshold-0.15;
+    });
+    
+    animProgress+=0.02;
+    
+    // Draw pulsing points
+    points.forEach(function(p,i){
+      if(!p.active)return;
+      var px=p.x*W,py=p.y*H;
+      var pulse=Math.sin(animProgress+i*0.5)*0.3+0.7;
+      var size=6*pulse;
+      
+      // Outer glow
+      var grad=ctx.createRadialGradient(px,py,0,px,py,size*3);
+      grad.addColorStop(0,'rgba(196,154,42,0.6)');
+      grad.addColorStop(0.5,'rgba(196,154,42,0.3)');
+      grad.addColorStop(1,'rgba(196,154,42,0)');
+      ctx.fillStyle=grad;
+      ctx.beginPath();
+      ctx.arc(px,py,size*3,0,Math.PI*2);
+      ctx.fill();
+      
+      // Core point
+      ctx.fillStyle='rgba(196,154,42,0.95)';
+      ctx.beginPath();
+      ctx.arc(px,py,size,0,Math.PI*2);
+      ctx.fill();
+      
+      // Inner highlight
+      ctx.fillStyle='rgba(255,255,255,0.8)';
+      ctx.beginPath();
+      ctx.arc(px,py,size*0.4,0,Math.PI*2);
+      ctx.fill();
+    });
+    
+    // Draw connection lines between active points
+    for(var i=0;i<points.length-1;i++){
+      if(points[i].active&&points[i+1].active){
+        var p1={x:points[i].x*W,y:points[i].y*H};
+        var p2={x:points[i+1].x*W,y:points[i+1].y*H};
+        
+        // Animated flowing line
+        var flowProgress=(animProgress*0.3+i*0.2)%1;
+        var gradient=ctx.createLinearGradient(p1.x,p1.y,p2.x,p2.y);
+        gradient.addColorStop(Math.max(0,flowProgress-0.15),'rgba(196,154,42,0)');
+        gradient.addColorStop(flowProgress,'rgba(196,154,42,0.5)');
+        gradient.addColorStop(Math.min(1,flowProgress+0.15),'rgba(196,154,42,0)');
+        
+        ctx.strokeStyle=gradient;
+        ctx.lineWidth=2;
+        ctx.beginPath();
+        ctx.moveTo(p1.x,p1.y);
+        ctx.lineTo(p2.x,p2.y);
+        ctx.stroke();
+      }
+    }
+    
+    requestAnimationFrame(drawConnections)
+  }
+  drawConnections()
+})();
 
 </script>
 
