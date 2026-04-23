@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Locavizion — Curator Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Jost:wght@300;400;500;600&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0e0d0a;--warm:#1a1712;--paper:#faf6ee;--cream:#f0e9d8;--sand:#e8ddc8;
+  --gold:#b8892a;--gold2:#d4a843;--gold3:#f0c060;
+  --sage:#3d6b52;--rust:#9e3d20;--sky:#1e3f6a;
+  --muted:#7a7060;--faint:#c8bfa8;--border:#d8ceb8;
+  --free-green:#2d5a3d;--paid-purple:#5a2d6e;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Jost',sans-serif;background:var(--paper);color:var(--ink);font-size:15px;line-height:1.7;overflow-x:hidden}
+
+/* ─ NAV ─ */
+.nav{position:sticky;top:0;z-index:100;background:rgba(250,246,238,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0.8rem 2.5rem;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{display:flex;align-items:center;gap:0.5rem}
+.nav-logo{font-family:'Playfair Display',serif;font-size:1rem;letter-spacing:0.06em;color:var(--gold);font-style:italic}
+.nav-sep{color:var(--faint);font-size:0.8rem;padding:0 0.25rem}
+.nav-doc{font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--muted)}
+.nav-links{display:flex;gap:0.5rem}
+.nl{font-family:'Space Mono',monospace;font-size:0.46rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:0.2rem 0.55rem;text-decoration:none;border:none;background:none;cursor:pointer;transition:color 0.2s}
+.nl:hover{color:var(--gold)}
+
+/* ─ COVER ─ */
+.cover{background:var(--ink);min-height:88vh;display:flex;align-items:center;padding:5rem 2.5rem 4rem;position:relative;overflow:hidden}
+.cover-pattern{position:absolute;inset:0;opacity:0.04;background-image:repeating-linear-gradient(45deg,var(--gold) 0,var(--gold) 1px,transparent 0,transparent 50%);background-size:20px 20px}
+.cover-glow{position:absolute;top:0;right:0;width:55%;height:100%;background:radial-gradient(ellipse 70% 80% at 80% 40%,rgba(184,137,42,0.12) 0%,transparent 65%)}
+.cover-inner{max-width:900px;margin:0 auto;position:relative;z-index:1;width:100%}
+.cover-eyebrow{font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold2);display:flex;align-items:center;gap:0.75rem;margin-bottom:2rem;animation:fadeIn 0.8s ease forwards}
+.cover-eyebrow::before{content:'';width:24px;height:1px;background:var(--gold2)}
+h1{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,6vw,5.5rem);font-weight:400;line-height:0.95;color:#fff;margin-bottom:1.75rem;animation:slideUp 0.9s ease 0.15s both}
+h1 em{font-style:italic;color:var(--gold3);display:block}
+.cover-body{font-size:0.95rem;line-height:1.85;color:rgba(255,255,255,0.42);max-width:520px;margin-bottom:2.5rem;border-left:2px solid rgba(184,137,42,0.3);padding-left:1.25rem;animation:slideUp 0.9s ease 0.3s both}
+.cover-welcome{display:flex;gap:2rem;flex-wrap:wrap;animation:slideUp 0.9s ease 0.45s both}
+.cw-item{padding:1rem 1.25rem;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.03)}
+.cw-val{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:400;color:var(--gold3);display:block;line-height:1}
+.cw-label{font-family:'Space Mono',monospace;font-size:0.44rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.22);display:block;margin-top:0.3rem}
+
+/* ─ LAYOUT ─ */
+.wrap{max-width:900px;margin:0 auto;padding:0 2.5rem 5rem}
+.section{margin-top:5rem}
+.sec-eyebrow{font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:0.6rem;margin-bottom:0.85rem}
+.sec-eyebrow::before{content:'';width:14px;height:1px;background:var(--gold)}
+h2{font-family:'Playfair Display',serif;font-size:clamp(1.65rem,3.2vw,2.5rem);font-weight:400;line-height:1.05;margin-bottom:0.85rem;color:var(--ink)}
+h2 em{font-style:italic;color:var(--rust)}
+.body-text{font-size:0.88rem;line-height:1.88;color:var(--muted);max-width:640px}
+.body-text strong{color:var(--ink);font-weight:600}
+
+/* ─ PULL QUOTE ─ */
+.pull{margin:2rem 0;padding:1.5rem 2rem;border-left:3px solid var(--gold);background:var(--cream)}
+.pull p{font-family:'Playfair Display',serif;font-style:italic;font-size:1.05rem;line-height:1.65;color:var(--ink)}
+.pull p strong{color:var(--gold);font-style:normal}
+
+/* ─ CALLOUT ─ */
+.callout{border:1px solid var(--border);padding:1.25rem 1.5rem;margin:1.5rem 0;background:var(--cream)}
+.callout.sage{border-color:rgba(61,107,82,0.35);background:rgba(61,107,82,0.05)}
+.callout.rust{border-color:rgba(158,61,32,0.25);background:rgba(158,61,32,0.04)}
+.callout.gold{border-color:rgba(184,137,42,0.3);background:rgba(184,137,42,0.05)}
+.cl-label{font-family:'Space Mono',monospace;font-size:0.46rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--muted);margin-bottom:0.4rem;display:block}
+.callout.sage .cl-label{color:var(--sage)}
+.callout.rust .cl-label{color:var(--rust)}
+.callout.gold .cl-label{color:var(--gold)}
+.callout p{font-size:0.84rem;line-height:1.82;color:var(--muted)}
+.callout strong{color:var(--ink)}
+
+/* ─ CATEGORY PICKER ─ */
+.cat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);margin:1.75rem 0}
+.cat-card{background:var(--paper);padding:1.5rem 1.25rem;cursor:pointer;transition:background 0.2s}
+.cat-card:hover{background:var(--cream)}
+.cat-icon{font-size:1.5rem;display:block;margin-bottom:0.6rem}
+.cat-name{font-weight:600;font-size:0.88rem;color:var(--ink);margin-bottom:0.18rem}
+.cat-desc{font-size:0.72rem;color:var(--muted);line-height:1.62}
+.cat-examples{margin-top:0.65rem;font-family:'Space Mono',monospace;font-size:0.46rem;letter-spacing:0.06em;color:var(--faint);line-height:1.8}
+
+/* ─ SUBMISSION CARDS ─ */
+.submission-steps{display:flex;flex-direction:column;gap:1px;background:var(--border);margin:1.75rem 0}
+.sub-step{display:grid;grid-template-columns:72px 1fr;gap:0;background:var(--paper)}
+.sub-step:hover{background:var(--cream)}
+.ss-num{display:flex;align-items:flex-start;justify-content:center;padding:1.5rem 1rem 1.5rem;border-right:1px solid var(--border)}
+.ss-num-val{font-family:'Playfair Display',serif;font-size:2rem;font-weight:400;color:var(--faint);line-height:1}
+.ss-content{padding:1.5rem}
+.ss-title{font-weight:600;font-size:0.9rem;color:var(--ink);margin-bottom:0.35rem}
+.ss-body{font-size:0.8rem;line-height:1.82;color:var(--muted)}
+.ss-body strong{color:var(--ink);font-weight:600}
+.ss-example{margin-top:0.75rem;padding:0.65rem 0.9rem;background:var(--cream);border-left:2px solid var(--gold);font-size:0.78rem;line-height:1.72;color:var(--muted)}
+.ss-example em{font-family:'Playfair Display',serif;font-style:italic;color:var(--ink)}
+
+/* ─ THE TEMPLATE ─ */
+.template-wrap{border:1px solid var(--border);overflow:hidden;margin:1.75rem 0}
+.template-header{background:var(--ink);padding:1rem 1.5rem;display:flex;align-items:center;gap:0.75rem}
+.th-dot{width:9px;height:9px;border-radius:50%;background:var(--gold2)}
+.th-title{font-family:'Space Mono',monospace;font-size:0.52rem;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.5)}
+.template-body{background:var(--cream);padding:1.5rem}
+.field-row{margin-bottom:1.1rem}
+.field-label{font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--gold);display:block;margin-bottom:0.3rem}
+.field-desc{font-size:0.78rem;color:var(--muted);line-height:1.72;margin-bottom:0.3rem}
+.field-eg{font-family:'Playfair Display',serif;font-style:italic;font-size:0.84rem;color:var(--ink);padding:0.4rem 0.75rem;border-left:2px solid var(--faint)}
+.field-row.accent .field-label{color:var(--sage)}
+.field-row.accent2 .field-label{color:var(--rust)}
+
+/* ─ BEFORE / AFTER ─ */
+.ba-split{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);margin:1.75rem 0}
+.ba-panel{padding:1.5rem}
+.ba-panel.before{background:rgba(158,61,32,0.04)}
+.ba-panel.after{background:rgba(61,107,82,0.05)}
+.ba-label{font-family:'Space Mono',monospace;font-size:0.46rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:0.85rem;display:flex;align-items:center;gap:0.4rem}
+.ba-label::before{content:'';width:10px;height:1px;background:currentColor}
+.ba-panel.before .ba-label{color:var(--rust)}
+.ba-panel.after .ba-label{color:var(--sage)}
+.ba-text{font-size:0.8rem;line-height:1.82;color:var(--muted)}
+.ba-text strong{color:var(--ink);font-weight:600}
+
+/* ─ EARN MAP ─ */
+.earn-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.1rem;margin:1.75rem 0}
+.earn-card{border:1px solid var(--border);overflow:hidden}
+.earn-header{padding:1rem 1.1rem;background:var(--ink)}
+.eh-stream{font-family:'Space Mono',monospace;font-size:0.44rem;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-bottom:0.3rem;display:block}
+.eh-name{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:400;color:var(--gold3)}
+.eh-split{font-family:'Space Mono',monospace;font-size:0.52rem;color:var(--gold2);margin-top:0.25rem;display:block}
+.earn-body{padding:1rem 1.1rem;background:var(--paper)}
+.earn-body p{font-size:0.76rem;color:var(--muted);line-height:1.78}
+.earn-body strong{color:var(--ink);font-weight:600}
+.earn-math{margin-top:0.65rem;padding:0.45rem 0.75rem;background:var(--cream);font-family:'Space Mono',monospace;font-size:0.5rem;color:var(--sage);letter-spacing:0.06em}
+
+/* ─ BEST PRACTICES ─ */
+.practice-list{display:flex;flex-direction:column;gap:0.85rem;margin:1.5rem 0}
+.practice{display:flex;align-items:flex-start;gap:1rem;padding:1.1rem 1.25rem;border:1px solid var(--border);background:var(--paper)}
+.practice-num{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:400;color:var(--faint);flex-shrink:0;line-height:1;margin-top:0.05rem;width:28px}
+.practice-content{}
+.practice-title{font-weight:600;font-size:0.86rem;color:var(--ink);margin-bottom:0.2rem}
+.practice-body{font-size:0.78rem;color:var(--muted);line-height:1.78}
+.practice-body strong{color:var(--ink)}
+
+/* ─ PIONEER SECTION ─ */
+.pioneer{background:var(--ink);padding:4.5rem 2.5rem;position:relative;overflow:hidden;margin:5rem -2.5rem 0}
+.pioneer-pattern{position:absolute;inset:0;opacity:0.03;background-image:repeating-linear-gradient(135deg,var(--gold) 0,var(--gold) 1px,transparent 0,transparent 50%);background-size:24px 24px}
+.pioneer-inner{max-width:900px;margin:0 auto;position:relative;z-index:1}
+.pioneer-row{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center}
+.pioneer-text{}
+.pioneer-text h2{color:#fff;margin-bottom:1rem}
+.pioneer-text h2 em{color:var(--gold3)}
+.pioneer-text p{font-size:0.88rem;line-height:1.88;color:rgba(255,255,255,0.42);margin-bottom:1.25rem}
+.pioneer-text strong{color:rgba(255,255,255,0.85);font-weight:600}
+.pioneer-cards{display:flex;flex-direction:column;gap:0.75rem}
+.pc{padding:1.1rem 1.25rem;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.03)}
+.pc-title{font-weight:600;font-size:0.84rem;color:rgba(255,255,255,0.8);margin-bottom:0.2rem}
+.pc-body{font-size:0.75rem;color:rgba(255,255,255,0.35);line-height:1.72}
+
+/* ─ CLOSING CTA ─ */
+.cta-wrap{text-align:center;padding:4rem 2.5rem;background:var(--cream);margin:0 -2.5rem;border-top:1px solid var(--border)}
+.cta-label{font-family:'Space Mono',monospace;font-size:0.5rem;letter-spacing:0.22em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;display:block}
+.cta-title{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.4rem);font-weight:400;line-height:1.1;margin-bottom:1rem;color:var(--ink)}
+.cta-title em{font-style:italic;color:var(--gold)}
+.cta-body{font-size:0.86rem;line-height:1.82;color:var(--muted);max-width:500px;margin:0 auto 2rem}
+.cta-btn{display:inline-block;font-family:'Space Mono',monospace;font-size:0.54rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper);background:var(--ink);border:none;padding:0.9rem 2.25rem;cursor:pointer;text-decoration:none;transition:background 0.2s}
+.cta-btn:hover{background:var(--gold)}
+
+/* ─ FOOTER ─ */
+footer{background:var(--ink);padding:1.75rem 2.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem}
+.fl{font-family:'Playfair Display',serif;font-style:italic;font-size:1rem;color:var(--gold2)}
+.fn{font-family:'Space Mono',monospace;font-size:0.44rem;letter-spacing:0.1em;color:rgba(255,255,255,0.18)}
+
+/* ─ DIVIDER ─ */
+.divider{border:none;border-top:1px solid var(--border);margin:0}
+
+/* ─ ANIMATIONS ─ */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(20px);transition:opacity 0.6s ease,transform 0.6s ease}
+.reveal.on{opacity:1;transform:none}
+
+@media(max-width:720px){
+  .cat-grid,.earn-grid,.ba-split,.pioneer-row{grid-template-columns:1fr}
+  .wrap,.nav,.pioneer,.cta-wrap,footer{padding-left:1.25rem;padding-right:1.25rem}
+  .pioneer{margin-left:-1.25rem;margin-right:-1.25rem}
+  .cta-wrap{margin-left:-1.25rem;margin-right:-1.25rem}
+  .sub-step{grid-template-columns:52px 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">
+    <span class="nav-logo">Locavizion</span>
+    <span class="nav-sep">/</span>
+    <span class="nav-doc">Curator Guide</span>
+  </div>
+  <div class="nav-links">
+    <a class="nl" href="#what-you-do">Your Role</a>
+    <a class="nl" href="#categories">Categories</a>
+    <a class="nl" href="#how-to-submit">Submit</a>
+    <a class="nl" href="#how-you-earn">How You Earn</a>
+    <a class="nl" href="#best-practices">Best Practices</a>
+    <a class="nl" href="#pioneers">Pioneers</a>
+  </div>
+</nav>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-pattern"></div>
+  <div class="cover-glow"></div>
+  <div class="cover-inner">
+    <div class="cover-eyebrow">Welcome · Locavizion Curator Guide</div>
+    <h1>You already know<br><em>more than you think.</em></h1>
+    <p class="cover-body">You have been giving people good advice about your city for years — in conversations, on social, through DMs, at dinner. Locavizion is simply the first platform built to structure that knowledge, deliver it to the right people at the right moment, and pay you well for it.</p>
+    <div class="cover-welcome">
+      <div class="cw-item"><span class="cw-val">70%</span><span class="cw-label">Of every booking — yours</span></div>
+      <div class="cw-item"><span class="cw-val">Founding</span><span class="cw-label">Curator status — permanent</span></div>
+      <div class="cw-item"><span class="cw-val">Global</span><span class="cw-label">Pioneer network — building now</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- ─ SECTION 1: WHAT YOU DO ─ -->
+<div class="section reveal" id="what-you-do">
+  <div class="sec-eyebrow">01 · Your Role</div>
+  <h2>It is nothing new.<br><em>Just finally valued.</em></h2>
+  <p class="body-text">Think about the last time a friend visited your city and asked where to go. You gave them specific places, told them what to order, explained when to show up and what to avoid. You told them how the neighbourhood actually feels — not how it appears on a map. You did it naturally, from years of being here and paying attention.</p>
+  <div class="pull">
+    <p>That is what a Locavizion Curator does. The only difference is that we have built a structure to <strong>capture that knowledge, organise it, and deliver it to travelers who genuinely need it</strong> — and a platform that pays you directly every time it helps someone.</p>
+  </div>
+  <p class="body-text">You do not need to become a content creator. You do not need to post every day or build a following from scratch. You simply share what you already know — in a format that makes it retrievable, useful, and genuinely valuable to someone discovering your city for the first time.</p>
+
+  <!-- Before / After -->
+  <div class="ba-split reveal">
+    <div class="ba-panel before">
+      <div class="ba-label">Before Locavizion</div>
+      <div class="ba-text">You recommend your favourite Tuesday night spot to a friend. They love it. The restaurant fills up a table. You feel good about it. <strong>No record. No recognition. No return.</strong> Your knowledge helped three people — the friend, the restaurant, the city — and you earned nothing from it.</div>
+    </div>
+    <div class="ba-panel after">
+      <div class="ba-label">With Locavizion</div>
+      <div class="ba-text">That same recommendation is structured, tagged, and in the platform. When a traveler asks the right question at the right moment, your insight surfaces — at the right time, for the right person. <strong>Every time it drives a booking or a session, you earn. Automatically. From knowledge you already have.</strong></div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ─ SECTION 2: CATEGORIES ─ -->
+<div class="section reveal" id="categories">
+  <div class="sec-eyebrow">02 · Your Category</div>
+  <h2>Every kind of<br><em>local knowledge matters.</em></h2>
+  <p class="body-text" style="margin-bottom:1.5rem">Locavizion organises local intelligence by domain. Your Curator profile is anchored in one primary category — the area where your knowledge runs deepest. You may cross into others naturally, but start with what you know best.</p>
+
+  <div class="cat-grid">
+    <div class="cat-card">
+      <span class="cat-icon">🍽</span>
+      <div class="cat-name">Food + Drink</div>
+      <div class="cat-desc">You know where locals actually eat. The timing, the order, the vibe, the neighbourhood context. Not what's rated highest — what's genuinely worth going to and why.</div>
+      <div class="cat-examples">Restaurants · Bars · Coffee · Markets · Late night · Local producers</div>
+    </div>
+    <div class="cat-card">
+      <span class="cat-icon">🎨</span>
+      <div class="cat-name">Arts + Culture</div>
+      <div class="cat-desc">You are plugged into the creative scene — what's opening, where artists gather, what shows are worth seeing, who to follow, what the real art community looks like beyond the tourist galleries.</div>
+      <div class="cat-examples">Galleries · Studios · Pop-ups · Murals · Events · Artist community</div>
+    </div>
+    <div class="cat-card">
+      <span class="cat-icon">🎵</span>
+      <div class="cat-name">Music + Nightlife</div>
+      <div class="cat-desc">You know the venues worth knowing, the nights worth going to, the DJs and acts that reflect what the city's scene actually is — not the tourist-facing surface of it.</div>
+      <div class="cat-examples">Venues · DJ nights · Live music · Underground spots · Rooftops · Mixers</div>
+    </div>
+    <div class="cat-card">
+      <span class="cat-icon">🤝</span>
+      <div class="cat-name">Networking + Community</div>
+      <div class="cat-desc">You move in the professional and community circles. You know where the right conversations happen, who connects who, and how to help someone find their people in an unfamiliar city.</div>
+      <div class="cat-examples">Founder dinners · Professional mixers · Industry events · Community gatherings</div>
+    </div>
+    <div class="cat-card">
+      <span class="cat-icon">💼</span>
+      <div class="cat-name">Business + Tech</div>
+      <div class="cat-desc">You know the startup ecosystem, the co-working spaces worth being in, the people worth meeting, and how the city's business community actually works beneath the surface.</div>
+      <div class="cat-examples">Incubators · Tech community · Work venues · Startup events · Investor circles</div>
+    </div>
+    <div class="cat-card">
+      <span class="cat-icon">🌿</span>
+      <div class="cat-name">Outdoors + Lifestyle</div>
+      <div class="cat-desc">You know the parks, the trails, the water, the hidden outdoor spots most people in the city have never found. You know the timing, the season, the local secret that makes the experience different.</div>
+      <div class="cat-examples">Parks · Trails · Water · Beaches · Hidden spots · Seasonal experiences</div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ─ SECTION 3: HOW TO SUBMIT ─ -->
+<div class="section reveal" id="how-to-submit">
+  <div class="sec-eyebrow">03 · How to Submit Your Knowledge</div>
+  <h2>Simple questions.<br><em>Powerful answers.</em></h2>
+  <p class="body-text" style="margin-bottom:0.75rem">We don't ask you to write essays or fill in complicated forms. We ask you simple questions — the same ones you'd answer naturally if a friend were visiting. The structure behind those answers is our job, not yours.</p>
+  <p class="body-text">For each place, experience, or insight you want to share, answer these five prompts. That's it. We do the rest.</p>
+
+  <div class="submission-steps reveal">
+
+    <div class="sub-step">
+      <div class="ss-num"><span class="ss-num-val">1</span></div>
+      <div class="ss-content">
+        <div class="ss-title">What is it — and what makes it genuinely worth knowing?</div>
+        <div class="ss-body">Not the official description. Your description. <strong>What would you tell a friend in two sentences?</strong> What makes this place different from the version a tourist would find on their own?</div>
+        <div class="ss-example"><em>"Rooster and the Till is a 40-seat farm-to-table in Seminole Heights. The pork belly changes weekly and it's been the best restaurant in Tampa Bay two years running — most visitors have never heard of it."</em></div>
+      </div>
+    </div>
+
+    <div class="sub-step">
+      <div class="ss-num"><span class="ss-num-val">2</span></div>
+      <div class="ss-content">
+        <div class="ss-title">When should someone go — and when should they avoid it?</div>
+        <div class="ss-body">This is the insight that no app has. The timing tip that turns a mediocre visit into a memorable one. <strong>Be specific.</strong> Day of week, time of day, season, what changes when, and what most people get wrong.</div>
+        <div class="ss-example"><em>"Tuesday or Wednesday evening. Weekends have a 90-minute wait and feel rushed. On a weekday you walk straight in and the kitchen has time for you."</em></div>
+      </div>
+    </div>
+
+    <div class="sub-step">
+      <div class="ss-num"><span class="ss-num-val">3</span></div>
+      <div class="ss-content">
+        <div class="ss-title">Who is it best for — and what situation does it suit?</div>
+        <div class="ss-body">Solo traveler? Business dinner? First date? Post-conference wind-down? <strong>Context is what separates a recommendation from a search result.</strong> The more specific you are about who and when, the more useful your insight becomes.</div>
+        <div class="ss-example"><em>"Great for a solo dinner or a small group that wants to talk. Not ideal for a loud celebration — it's intimate and the service is attentive, not rushed."</em></div>
+      </div>
+    </div>
+
+    <div class="sub-step">
+      <div class="ss-num"><span class="ss-num-val">4</span></div>
+      <div class="ss-content">
+        <div class="ss-title">What should they know that isn't written anywhere?</div>
+        <div class="ss-body">The off-menu item. The table to ask for. The thing the staff will tell you if you ask. The cultural context that makes the experience land differently. <strong>This is your real contribution — the local intelligence that no search engine can surface.</strong></div>
+        <div class="ss-example"><em>"Ask for the pasta special — it's not on the menu and it changes weekly. The bar seats have the best view of the open kitchen if you're solo."</em></div>
+      </div>
+    </div>
+
+    <div class="sub-step">
+      <div class="ss-num"><span class="ss-num-val">5</span></div>
+      <div class="ss-content">
+        <div class="ss-title">Where does it fit in a local flow — what comes before or after?</div>
+        <div class="ss-body">Locals don't experience the city in isolated stops. They move through it. <strong>Help us understand how this place connects to the neighbourhood, the evening, the day.</strong> What makes it a starting point, a midpoint, or an ending?</div>
+        <div class="ss-example"><em>"Start here for dinner, walk 8 minutes to Gin Joint for cocktails, then catch the streetcar to Ybor if the night is going well. Perfect sequence for a Wednesday."</em></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- The filled template visual -->
+  <div class="sec-eyebrow" style="margin-top:2.5rem">What a completed submission looks like</div>
+  <div class="template-wrap reveal">
+    <div class="template-header">
+      <div class="th-dot"></div>
+      <span class="th-title">Curator Submission · Food + Drink · Tampa Bay</span>
+    </div>
+    <div class="template-body">
+      <div class="field-row">
+        <span class="field-label">What it is</span>
+        <div class="field-desc">Name, neighbourhood, and your honest two-sentence take</div>
+        <div class="field-eg">"Ichicoro Ramen · Seminole Heights · Best ramen in Florida. Locally sourced, the tonkotsu is extraordinary, and it feels like a neighbourhood secret even years after opening."</div>
+      </div>
+      <div class="field-row accent">
+        <span class="field-label">When to go</span>
+        <div class="field-desc">Day, time, season — the specific timing that makes the difference</div>
+        <div class="field-eg">"Weeknights after 8pm. The crowd that shows up then is the real local crowd. Earlier it can feel touristy; later the energy picks up properly."</div>
+      </div>
+      <div class="field-row">
+        <span class="field-label">Best for</span>
+        <div class="field-desc">Who this suits and what situation it works for</div>
+        <div class="field-eg">"Solo traveler wanting a real meal, or a small group of two to three. Not a business dinner spot — casual but genuinely excellent."</div>
+      </div>
+      <div class="field-row accent2">
+        <span class="field-label">The insider detail</span>
+        <div class="field-desc">What only a local would know — the thing that isn't written anywhere</div>
+        <div class="field-eg">"The tonkotsu is the move, full stop. If you're not sure, just order that. They do a daily special that changes — ask your server what it is before you decide."</div>
+      </div>
+      <div class="field-row accent">
+        <span class="field-label">The local flow</span>
+        <div class="field-desc">How it connects — what naturally comes before or after</div>
+        <div class="field-eg">"Dinner here, then walk to Angry Chair Brewing two blocks over. Both are neighbourhood institutions. That's a genuine Seminole Heights evening."</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout sage reveal">
+    <span class="cl-label">What happens after you submit</span>
+    <p>We take your answers, structure them into the platform's knowledge base, and tag each insight across multiple dimensions — vibe, timing, best-for, area, category. When a traveler asks the right question, your insight surfaces as part of the AI's response. <strong>You don't need to think about any of that.</strong> You just answer the five questions honestly. We handle everything behind it.</p>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ─ SECTION 4: HOW YOU EARN ─ -->
+<div class="section reveal" id="how-you-earn">
+  <div class="sec-eyebrow">04 · How You Earn</div>
+  <h2>Your knowledge.<br><em>Your majority.</em></h2>
+  <p class="body-text" style="margin-bottom:0.5rem">The model is simple: when your knowledge helps someone and they pay for that help, the majority of what they pay goes directly to you. Not to us. Not to a platform taking a cut that erases your earnings. <strong>You.</strong></p>
+  <p class="body-text" style="margin-bottom:1.5rem">There are three ways your knowledge earns for you — and they can all run simultaneously.</p>
+
+  <div class="earn-grid">
+    <div class="earn-card">
+      <div class="earn-header">
+        <span class="eh-stream">Stream 01</span>
+        <div class="eh-name">1:1 Briefing</div>
+        <span class="eh-split">You keep 65% · Paid within 48hrs</span>
+      </div>
+      <div class="earn-body">
+        <p>A traveler books a <strong>30-minute video call with you</strong> before they arrive in your city. They tell you why they're coming, what they care about, what their vibe is. You give them exactly what they need — specific, personal, honest. That's it.</p>
+        <div class="earn-math">$75 session → $48.75 to you · Automatic via Stripe</div>
+      </div>
+    </div>
+    <div class="earn-card">
+      <div class="earn-header">
+        <span class="eh-stream">Stream 02</span>
+        <div class="eh-name">Group Experience</div>
+        <span class="eh-split">You keep 70% · Per person booked</span>
+      </div>
+      <div class="earn-body">
+        <p>You design and host a <strong>small group experience</strong> — a food walk, an arts evening, a neighbourhood tour, a sunset spot with context. Groups of 4–12 people. You set the price. You host it your way.</p>
+        <div class="earn-math">8 people × $85 → $476 to you · One evening</div>
+      </div>
+    </div>
+    <div class="earn-card">
+      <div class="earn-header">
+        <span class="eh-stream">Stream 03</span>
+        <div class="eh-name">Platform Presence</div>
+        <span class="eh-split">Your insights drive bookings passively</span>
+      </div>
+      <div class="earn-body">
+        <p>Every insight you submit <strong>works for you while you sleep.</strong> When the AI guide surfaces your knowledge to a traveler who then upgrades to the paid tier or books a briefing, you earn from the platform's subscription revenue pool. Passive earnings from knowledge you submitted once.</p>
+        <div class="earn-math">Knowledge in platform → Ongoing pool share · Monthly</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout gold reveal">
+    <span class="cl-label">What a realistic month looks like</span>
+    <p>Two briefings per week = 8 per month × $75 = <strong>$390 to you</strong> from conversations alone. One small group experience per month, 8 people at $85 = <strong>$476 to you</strong> from one evening. That is <strong>$866 from knowledge you already have</strong>, on a schedule you control, without a brand deal, without a massive following, without creating content for someone else's algorithm.</p>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- ─ SECTION 5: BEST PRACTICES ─ -->
+<div class="section reveal" id="best-practices">
+  <div class="sec-eyebrow">05 · Best Practices</div>
+  <h2>How to make<br><em>the platform work for you.</em></h2>
+  <p class="body-text" style="margin-bottom:1.5rem">The Curators who earn most are not the ones with the biggest following. They are the ones who show up specifically, share genuinely, and let the platform's reach do what their personal audience alone cannot. A few things that make a real difference.</p>
+
+  <div class="practice-list reveal">
+
+    <div class="practice">
+      <span class="practice-num">1</span>
+      <div class="practice-content">
+        <div class="practice-title">Be specific. Always more specific than you think you need to be.</div>
+        <div class="practice-body">Generic knowledge is what every other platform already has. <strong>"Great atmosphere"</strong> is worthless to us. <strong>"Go on a Tuesday at 7pm, sit at the bar, order the short rib — the server will tell you it's sold out but it isn't"</strong> is the kind of thing travelers book sessions to find out. The more specific your submission, the more useful it becomes, and the more your profile stands out.</div>
+      </div>
+    </div>
+
+    <div class="practice">
+      <span class="practice-num">2</span>
+      <div class="practice-content">
+        <div class="practice-title">Let your audience know you are a Locavizion Curator — without pitching them.</div>
+        <div class="practice-body">Post your perspective on your city the way you already do. Mention casually that you do Curator briefings for people visiting — not as a promotion, as a fact. <strong>"If you're coming to Tampa and want to know what's actually worth seeing, I do short briefings now through Locavizion"</strong> does more than any sales post. The people who already follow you already trust you. That trust converts.</div>
+      </div>
+    </div>
+
+    <div class="practice">
+      <span class="practice-num">3</span>
+      <div class="practice-content">
+        <div class="practice-title">Design one experience and market it before you need to.</div>
+        <div class="practice-body">Don't wait for bookings to design the experience — design it first and post about it. <strong>Tell people what they'll see, feel, and leave knowing.</strong> The title matters: "Tampa Street Art & Culture Walk" is fine. "The Ybor City you weren't supposed to find" is something people actually book. Make the experience specific to a feeling or a discovery, not just a category.</div>
+      </div>
+    </div>
+
+    <div class="practice">
+      <span class="practice-num">4</span>
+      <div class="practice-content">
+        <div class="practice-title">Submit 10 insights to start — then update quarterly.</div>
+        <div class="practice-body">Ten solid, specific, tagged insights across your domain gives the platform enough to surface you meaningfully in responses. <strong>Quality over quantity, always.</strong> Then come back every three months to update what's changed — what closed, what opened, what shifted. A Curator whose knowledge is current earns more because their recommendations are reliable.</div>
+      </div>
+    </div>
+
+    <div class="practice">
+      <span class="practice-num">5</span>
+      <div class="practice-content">
+        <div class="practice-title">After a briefing, ask one question.</div>
+        <div class="practice-body">At the end of every session, ask: <strong>"Is there anyone you know coming to Tampa soon who might find this useful?"</strong> Not a hard sell — a genuine question. Word of mouth from a satisfied traveler is more powerful than any marketing. One good session, followed by one honest question, generates two more sessions more reliably than any promotion campaign.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- end .wrap -->
+
+<!-- ─ PIONEER SECTION ─ -->
+<div class="pioneer reveal" id="pioneers">
+  <div class="pioneer-pattern"></div>
+  <div class="pioneer-inner">
+    <div class="pioneer-row">
+      <div class="pioneer-text">
+        <div class="sec-eyebrow" style="color:var(--gold2)">06 · Founding Curators</div>
+        <h2>You are not just<br><em>joining a platform.</em></h2>
+        <p>You are among the first people in the world to be a Locavizion Curator. That means something beyond the immediate earnings — it means your knowledge, your standards, and your way of representing your city shapes everything that comes after you.</p>
+        <p>When Locavizion expands — to new cities, to new countries, to every World Cup host city and beyond — <strong>the founding Curators are the ones who onboard the next generation.</strong> Your experience becomes the model. And as the Curator network grows into a collective, the pool of knowledge — and the earnings that flow from it — grows with it.</p>
+        <p>We are building something that has never existed before. A city intelligence network powered by the people who actually live it. <strong>The founding layer of that network is the most valuable layer there is.</strong></p>
+      </div>
+      <div class="pioneer-cards">
+        <div class="pc">
+          <div class="pc-title">Your founding Curator status is permanent</div>
+          <div class="pc-body">The terms you join on today — your commission rate, your pioneer recognition, your early position in the platform — are yours regardless of what changes as the platform scales. Founding means founding.</div>
+        </div>
+        <div class="pc">
+          <div class="pc-title">You onboard what comes next</div>
+          <div class="pc-body">As Locavizion expands, founding Curators are the ones who recommend, guide, and onboard new Curators in new cities. Your experience is the standard. Your network becomes the pipeline.</div>
+        </div>
+        <div class="pc">
+          <div class="pc-title">The collective pool grows with the network</div>
+          <div class="pc-body">As the platform generates more revenue across more cities, a percentage flows into the founding Curator pool — shared across the people who built the foundation. You earn from the whole, not just your sessions.</div>
+        </div>
+        <div class="pc">
+          <div class="pc-title">Your city becomes part of something global</div>
+          <div class="pc-body">What you build here in Tampa Bay — the insights, the experiences, the standard of local knowledge — becomes the model for Miami, New York, and every city that follows. You are not just representing your city. You are defining what it means to be a local guide in the era of AI.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─ CLOSING CTA ─ -->
+<div class="cta-wrap reveal">
+  <span class="cta-label">Ready when you are</span>
+  <div class="cta-title">Your city.<br><em>Your knowledge. Your terms.</em></div>
+  <p class="cta-body">The application takes less than 10 minutes. Tell us your category, your city, and what you know best. We'll be in touch within 48 hours to schedule your onboarding call — a real conversation, not a form response.</p>
+  <a class="cta-btn" href="https://locavizion.com" target="_blank">Apply at locavizion.com</a>
+  <div style="margin-top:1.25rem;font-family:'Space Mono',monospace;font-size:0.48rem;letter-spacing:0.12em;color:var(--muted)">Questions? Email us directly — info@locavizion.com</div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fl">Locavizion · Curator Guide</div>
+  <div class="fn">Tampa Bay · Miami · New York · Founding Cohort · 2026</div>
+</footer>
+
+<script>
+var obs = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting) e.target.classList.add('on');
+  });
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(function(el){obs.observe(el)});
+</script>
+</body>
+</html>
